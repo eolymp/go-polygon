@@ -34,3 +34,31 @@ func TestProblemLoader_FetchProblem(t *testing.T) {
 
 	// todo: make some assertions
 }
+
+func TestProblemLoader_FetchProblemViaLink(t *testing.T) {
+	if os.Getenv("POLYGON_USERNAME") == "" {
+		t.Skip("This test requires polygon password in env variable POLYGON_USERNAME and POLYGON_PASSWORD")
+	}
+
+	ctx := context.Background()
+
+	loader := NewProblemLoader(
+		&assetMock{},
+		&blobMock{},
+		&loggerMock{t: t},
+	)
+
+	link := url.URL{
+		Scheme: "https",
+		Host:   "polygon.codeforces.com",
+		User:   url.UserPassword(os.Getenv("POLYGON_USERNAME"), os.Getenv("POLYGON_PASSWORD")),
+		Path:   "/p8bWTsG/eolymp/example-a-plus-b-testdata",
+	}
+
+	_, err := loader.FetchProblem(ctx, link.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// todo: make some assertions
+}

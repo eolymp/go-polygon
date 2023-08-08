@@ -14,6 +14,8 @@ import (
 	"github.com/eolymp/go-sdk/eolymp/typewriter"
 	"github.com/google/uuid"
 	"io"
+	"mime"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -48,23 +50,6 @@ func NewProblemLoader(assets assetUploader, blobs blobUploader, log logger) *Pro
 //
 // An example of a link: polygon://api-key:api-secret@/?problemId=123
 func (p *ProblemLoader) FetchProblem(ctx context.Context, link string) (*atlaspb.Snapshot, error) {
-	origin, err := url.Parse(link)
-	if err != nil {
-		return nil, fmt.Errorf("invalid problem origin: %w", err)
-	}
-
-	if origin.Scheme != "polygon" {
-		return nil, fmt.Errorf("invalid problem origin: scheme %#v is not supported", origin.Scheme)
-	}
-
-	pid, err := strconv.ParseInt(origin.Query().Get("problemId"), 10, 32)
-	if err != nil {
-		return nil, errors.New("invalid problem origin: query parameter problemId must be a valid integer")
-	}
-
-	secret, _ := origin.User.Password()
-	poly := New(origin.User.Username(), secret)
-
 	// create workspace
 	path := filepath.Join(os.TempDir(), uuid.New().String())
 	if err := os.Mkdir(path, 0777); err != nil {
@@ -74,7 +59,7 @@ func (p *ProblemLoader) FetchProblem(ctx context.Context, link string) (*atlaspb
 	defer p.cleanup(path)
 
 	// download and unpack
-	if err := p.download(ctx, path, poly, int(pid)); err != nil {
+	if err := p.download(ctx, path, link); err != nil {
 		return nil, fmt.Errorf("unable to download problem archive: %w", err)
 	}
 
@@ -140,7 +125,90 @@ func (p *ProblemLoader) FetchProblem(ctx context.Context, link string) (*atlaspb
 }
 
 // download problem archive and save it locally for parsing
-func (p *ProblemLoader) download(ctx context.Context, path string, poly *Client, id int) error {
+func (p *ProblemLoader) download(ctx context.Context, path string, link string) error {
+	origin, err := url.Parse(link)
+	if err != nil {
+		return fmt.Errorf("invalid problem origin: %w", err)
+	}
+
+	switch {
+	case origin.Scheme == "polygon":
+		pid, err := strconv.ParseInt(origin.Query().Get("problemId"), 10, 32)
+		if err != nil {
+			return errors.New("invalid problem origin: query parameter problemId must be a valid integer")
+		}
+
+		secret, _ := origin.User.Password()
+		poly := New(origin.User.Username(), secret)
+
+		return p.downloadByID(ctx, path, poly, int(pid))
+	case origin.Scheme == "https" && origin.Hostname() == "polygon.codeforces.com" &&
+		origin.Port() == "":
+
+		return p.downloadByLink(ctx, path, origin)
+	default:
+		return fmt.Errorf("invalid problem origin: schema %#v is not supported", origin.Scheme)
+	}
+}
+
+func (p *ProblemLoader) downloadByLink(ctx context.Context, path string, link *url.URL) error {
+	username := link.User.Username()
+	password, _ := link.User.Password()
+
+	link.User = nil
+
+	query := url.Values{"login": {username}, "password": {password}, "type": {"windows"}}
+
+	req, err := http.NewRequest(http.MethodPost, link.String(), strings.NewReader(query.Encode()))
+	if err != nil {
+		return fmt.Errorf("unable to compose HTTP request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
+	if err != nil {
+		return fmt.Errorf("HTTP request has failed: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		return fmt.Errorf("problem link %#v leads to a file which does not exist", link.String())
+	}
+
+	kind, _, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	if err != nil {
+		return fmt.Errorf("unable to read response content-type: %w", err)
+	}
+
+	if kind != "application/zip" {
+		return fmt.Errorf("problem link %#v does not seem to lead to problem archive (check link and credentials)", link.String())
+	}
+
+	if resp.StatusCode == 401 || resp.StatusCode == 403 {
+		return fmt.Errorf("problem link %#v requires valid credentials", link.String())
+	}
+
+	if resp.StatusCode/100 != 2 {
+		return fmt.Errorf("problem link %#v is invalid: server response code is %v", link.String(), resp.StatusCode)
+	}
+
+	file, err := os.Create(filepath.Join(path, "problem.zip"))
+	if err != nil {
+		return fmt.Errorf("unable to create problem archieve: %w", err)
+	}
+
+	defer file.Close()
+
+	if _, err := io.Copy(file, resp.Body); err != nil {
+		return fmt.Errorf("unable to write problem archieve: %w", err)
+	}
+
+	return nil
+}
+
+func (p *ProblemLoader) downloadByID(ctx context.Context, path string, poly *Client, id int) error {
 	pack, err := p.pickPackage(ctx, poly, id)
 	if err != nil {
 		return fmt.Errorf("unable to find package: %w", err)
