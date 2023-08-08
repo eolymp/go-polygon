@@ -1,0 +1,135 @@
+package polygon
+
+import "strings"
+
+var tagMapping = map[string][]string{
+	"2-sat":                     {"4qpkrclrfl7rv5lic8djr3lldk"},
+	"2d array":                  {},
+	"ad-hoc":                    {},
+	"adhoc":                     {},
+	"arrays":                    {},
+	"backtracking":              {},
+	"bacs_review":               {},
+	"beginner":                  {},
+	"bfs":                       {"c79dhqpr712uv2feapbaodn6ds"},
+	"binary search":             {"3hr591p5lh7a9c5k9bg8kpvctg"},
+	"binsearch":                 {"3hr591p5lh7a9c5k9bg8kpvctg"},
+	"bitmask-dp":                {"ab0l1n5rsl3618ntv9ode0qn5k"},
+	"bitmasks":                  {"ab0l1n5rsl3618ntv9ode0qn5k"},
+	"bitwise operation":         {"ab0l1n5rsl3618ntv9ode0qn5k"},
+	"bracket sequences":         {},
+	"brute force":               {"5cl1ftokid1bn751ql21o0vdbs"},
+	"chinese remainder theorem": {"5nletoaur90j97jm9ac29rtkts"},
+	"codework":                  {},
+	"combinatorics":             {"66aoi354mt23da5mrt4npes0o0"},
+	"constructive":              {"7s78regvmt1ata79gr1ndlu67o"},
+	"constructive algorithms":   {"7s78regvmt1ata79gr1ndlu67o"},
+	"convex hull":               {},
+	"data structures":           {"8asv7g7jbl7hjclnc5ehiiamcs"},
+	"dejkstra":                  {"q44u43ajtp7eb9bhn6e4h6mf1s"},
+	"deque":                     {},
+	"dfs":                       {"Depth-first Search"},
+	"dfs and similar":           {"Depth-first Search"},
+	"dijkstra":                  {"q44u43ajtp7eb9bhn6e4h6mf1s"},
+	"disjoint set union":        {"eo9vh68hjd1kbf445f8aoi8rlc"},
+	"disjoint sets":             {"eo9vh68hjd1kbf445f8aoi8rlc"},
+	"div3":                      {},
+	"divide and conquer":        {"ad9840pj2d0rl10o0vja3c7q6g"},
+	"djikstra":                  {"q44u43ajtp7eb9bhn6e4h6mf1s"},
+	"dp":                        {"agd25lpqt52m565ljb65l0mqg0"},
+	"dp optimization":           {"agd25lpqt52m565ljb65l0mqg0"},
+	"dsu":                       {"eo9vh68hjd1kbf445f8aoi8rlc"},
+	"dynamic programming":       {"agd25lpqt52m565ljb65l0mqg0"},
+	"easy":                      {"pjjft5joql5j95u7radbchs51g"},
+	"example":                   {},
+	"expression parsing":        {"lqcb6ciath3crca477lrib36oo"},
+	"factorization":             {},
+	"fenwick tree":              {},
+	"fft":                       {"uoicsgaimp4f71sputplg5rd48"},
+	"flows":                     {},
+	"for":                       {},
+	"formula":                   {},
+	"game theory":               {"liijhm523122177op14gmgjd18"},
+	"games":                     {"liijhm523122177op14gmgjd18"},
+	"geometry":                  {"mn2buv28bp02v88uj715svnoro"},
+	"graph":                     {"msh9q06gah6hpds3m0dceu3ff8"},
+	"graph matchings":           {"mnki3h2qo51l91og62es1spa54"},
+	"graph theory":              {"msh9q06gah6hpds3m0dceu3ff8"},
+	"graphs":                    {"msh9q06gah6hpds3m0dceu3ff8"},
+	"greedy":                    {"n0b0meiu7p51tekkqefeafqat0"},
+	"hashing":                   {"n4irjrf3ot0rbdit566sbjrbio"},
+	"if":                        {},
+	"implementation":            {"nivqcdt8d93tff7rtkk7lu9ur8"},
+	"interactive":               {"nlp1qosu1h7jj8k8t9dn2131rg"},
+	"java":                      {},
+	"joke":                      {},
+	"lksh":                      {},
+	"math":                      {"o44qcs7mvt6nj6k5qcliev933g"},
+	"maths":                     {"o44qcs7mvt6nj6k5qcliev933g"},
+	"matrices":                  {"onl6ffbeq56bpaskrv54o6qdlc"},
+	"matrix":                    {"onl6ffbeq56bpaskrv54o6qdlc"},
+	"matrix exponentiation":     {"onl6ffbeq56bpaskrv54o6qdlc"},
+	"maxflow":                   {},
+	"meet-in-the-middle":        {},
+	"number theory":             {"p1so0jh9k96m3f8t5u70l8nphc"},
+	"optimization":              {},
+	"prefix sums":               {},
+	"prefix-function":           {},
+	"prime factorization":       {},
+	"priority queue":            {},
+	"probabilities":             {"pdoel1o5e936ve124idn9ar4dc"},
+	"queries":                   {},
+	"queue":                     {},
+	"randomized-algorithms":     {},
+	"range queries":             {},
+	"realization":               {"nivqcdt8d93tff7rtkk7lu9ur8"},
+	"recursion":                 {},
+	"rmq":                       {},
+	"scanline":                  {},
+	"schedules":                 {"psh4svain501l2nbobe0njvmm0"},
+	"segment tree":              {},
+	"shortest paths":            {"q44u43ajtp7eb9bhn6e4h6mf1s"},
+	"sieve of eratosthenes":     {},
+	"simple":                    {"pjjft5joql5j95u7radbchs51g"},
+	"simple math":               {"o44qcs7mvt6nj6k5qcliev933g"},
+	"sorting":                   {"q5g5r2to9t3h11e9g7gsoeiius"},
+	"sortings":                  {"q5g5r2to9t3h11e9g7gsoeiius"},
+	"sqrt":                      {},
+	"sqrt-decomposition":        {},
+	"stack":                     {"8asv7g7jbl7hjclnc5ehiiamcs"},
+	"stacks":                    {"8asv7g7jbl7hjclnc5ehiiamcs"},
+	"string suffix structures":  {"q7uda9h3jl6711deg0i76fatdc"},
+	"strings":                   {"ql34pmh9fh0ofdsb8jo3brsk1s"},
+	"suffix array":              {},
+	"sweep line":                {},
+	"tarjan":                    {},
+	"ternary search":            {"qm3576n3id76901nrcanp00alk"},
+	"trees":                     {"jbe4odf0rl39rc6vtvst7kuro0"},
+	"trivial":                   {"pjjft5joql5j95u7radbchs51g"},
+	"two pointers":              {"mougogmuf10i3b5gpp7ur935l0"},
+	"two-pointers":              {"mougogmuf10i3b5gpp7ur935l0"},
+	"very easy":                 {"pjjft5joql5j95u7radbchs51g"},
+	"while":                     {},
+	"xor":                       {},
+	"z-function":                {},
+}
+
+func TopicsFromTags(tags []SpecificationTag) (topics []string) {
+	unique := map[string]bool{}
+	for _, tag := range tags {
+		links, ok := tagMapping[strings.ToLower(tag.Value)]
+		if !ok {
+			continue
+		}
+
+		for _, link := range links {
+			unique[link] = true
+		}
+	}
+
+	for topic := range unique {
+		topics = append(topics, topic)
+	}
+
+	return
+}

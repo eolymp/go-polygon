@@ -113,7 +113,7 @@ func (p *ProblemLoader) FetchProblem(ctx context.Context, link string) (*atlaspb
 	}
 
 	return &atlaspb.Snapshot{
-		Problem:     &atlaspb.Problem{},
+		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags)},
 		Checker:     checker,
 		Interactor:  interactor,
 		Statements:  statements,
