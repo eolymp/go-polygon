@@ -40,7 +40,7 @@ func NewProblemLoader(assets assetUploader, blobs blobUploader, log logger) *Pro
 	}
 }
 
-// FetchProblem downloads, parses and normalizes problem for it to be imported into Eolymp database.
+// Fetch downloads, parses and normalizes problem for it to be imported into Eolymp database.
 //
 // The link must be a valid url with following parameters:
 //   - schema=polygon
@@ -49,7 +49,7 @@ func NewProblemLoader(assets assetUploader, blobs blobUploader, log logger) *Pro
 //   - host, path and port can be omitted
 //
 // An example of a link: polygon://api-key:api-secret@/?problemId=123
-func (p *ProblemLoader) FetchProblem(ctx context.Context, link string) (*atlaspb.Snapshot, error) {
+func (p *ProblemLoader) Fetch(ctx context.Context, link string) (*atlaspb.Snapshot, error) {
 	// create workspace
 	path := filepath.Join(os.TempDir(), uuid.New().String())
 	if err := os.Mkdir(path, 0777); err != nil {
@@ -67,7 +67,10 @@ func (p *ProblemLoader) FetchProblem(ctx context.Context, link string) (*atlaspb
 		return nil, fmt.Errorf("unable to unpack problem archive: %w", err)
 	}
 
-	// read problem.xml
+	return p.Snapshot(ctx, path)
+}
+
+func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Snapshot, error) {
 	file, err := os.Open(filepath.Join(path, "problem.xml"))
 	if err != nil {
 		return nil, fmt.Errorf("unable to open problem.xml: %w", err)
@@ -386,7 +389,7 @@ func (p *ProblemLoader) statements(ctx context.Context, path string, spec *Speci
 			continue
 		}
 
-		locale, err := mapLanguageToLocale(statement.Language)
+		locale, err := LocaleFromLanguage(statement.Language)
 		if err != nil {
 			continue
 		}

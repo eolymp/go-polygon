@@ -2,7 +2,7 @@ package polygon
 
 import "fmt"
 
-func mapLanguageToLocale(lang string) (string, error) {
+func LocaleFromLanguage(lang string) (string, error) {
 	switch lang {
 	case "ukrainian", "russian", "english", "hungarian":
 		return lang[:2], nil
