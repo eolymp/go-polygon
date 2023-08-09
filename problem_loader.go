@@ -14,6 +14,7 @@ import (
 	"github.com/eolymp/go-sdk/eolymp/typewriter"
 	"github.com/google/uuid"
 	"io"
+	"math"
 	"mime"
 	"net/http"
 	"net/url"
@@ -534,7 +535,6 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	}
 
 	testsetIndexByGroup := p.mapGroupToIndex(polyset)
-	testsByGroup := map[string][]*atlaspb.Test{}
 	testsetByGroup := map[string]*atlaspb.Testset{}
 
 	// read testsets
@@ -584,6 +584,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	}
 
 	// read tests
+	var total float32
 	for index, polytest := range polyset.Tests {
 		input, err := p.uploadObject(ctx, filepath.Join(path, fmt.Sprintf(polyset.InputPathPattern, index+1)))
 		if err != nil {
@@ -610,8 +611,16 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		}
 
 		tests = append(tests, test)
+		total += test.GetScore()
+	}
 
-		testsByGroup[polytest.Group] = append(testsByGroup[polytest.Group], test)
+	// set points evenly if total is 0
+	if total == 0 {
+		var credit float64 = 100
+		for i, test := range tests {
+			test.Score = float32(math.Min(math.Floor(credit/float64(len(tests)-i)), credit))
+			credit -= float64(test.Score)
+		}
 	}
 
 	return

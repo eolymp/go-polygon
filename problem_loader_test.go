@@ -111,25 +111,11 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 	})
 
-	t.Run("test score adds up to 100", func(t *testing.T) {
-		snap, err := loader.Snapshot(ctx, ".testdata/03-test-scoring")
+	t.Run("import points from problem.xml", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/03-test-scoring-with-points")
 		if err != nil {
 			t.Fatal("Problem snapshot has failed:", err)
 		}
-
-		testsets := map[string]*atlaspb.Testset{}
-		for _, testset := range snap.GetTestsets() {
-			testsets[testset.GetId()] = testset
-		}
-
-		// scores grouped by testset index
-		scores := map[uint32][]float32{}
-		for _, test := range snap.GetTests() {
-			index := testsets[test.GetTestsetId()].GetIndex()
-			scores[index] = append(scores[index], test.GetScore())
-		}
-
-		t.Logf("Scores: %v", scores)
 
 		// total score should be 100
 		var score float32
@@ -141,13 +127,40 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			t.Errorf("Problem score does not add up to 100, got %v instead", score)
 		}
 
-		// tests in group #1 should have only zeros
-		if want, got := []float32{0}, scores[1]; !reflect.DeepEqual(want, got) {
-			t.Errorf("Scores in group 1 do not match:\n want: %v\n  got: %v\n", want, got)
+		want := []float32{0, 0, 0, 0, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4}
+		var got []float32
+		for _, test := range snap.GetTests() {
+			got = append(got, test.GetScore())
 		}
 
-		// tests in group #2 should have 10 points evenly distributed among tests
-		if want, got := []float32{0, 0, 0, 10}, scores[2]; !reflect.DeepEqual(want, got) {
+		if !reflect.DeepEqual(want, got) {
+			t.Errorf("Scores in group 2 do not match:\n want: %v\n  got: %v\n", want, got)
+		}
+	})
+
+	t.Run("set 100 points evenly if there are none in problem.xml", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/04-test-scoring-without-points")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		// total score should be 100
+		var score float32
+		for _, test := range snap.GetTests() {
+			score += test.GetScore()
+		}
+
+		if score != 100 {
+			t.Errorf("Problem score does not add up to 100, got %v instead", score)
+		}
+
+		want := []float32{33, 33, 34}
+		var got []float32
+		for _, test := range snap.GetTests() {
+			got = append(got, test.GetScore())
+		}
+
+		if !reflect.DeepEqual(want, got) {
 			t.Errorf("Scores in group 2 do not match:\n want: %v\n  got: %v\n", want, got)
 		}
 	})
