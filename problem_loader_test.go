@@ -147,7 +147,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 
 		// tests in group #2 should have 10 points evenly distributed among tests
-		if want, got := []float32{2, 2, 3, 3}, scores[2]; !reflect.DeepEqual(want, got) {
+		if want, got := []float32{0, 0, 0, 10}, scores[2]; !reflect.DeepEqual(want, got) {
 			t.Errorf("Scores in group 2 do not match:\n want: %v\n  got: %v\n", want, got)
 		}
 	})

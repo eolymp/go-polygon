@@ -14,7 +14,6 @@ import (
 	"github.com/eolymp/go-sdk/eolymp/typewriter"
 	"github.com/google/uuid"
 	"io"
-	"math"
 	"mime"
 	"net/http"
 	"net/url"
@@ -613,27 +612,6 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		tests = append(tests, test)
 
 		testsByGroup[polytest.Group] = append(testsByGroup[polytest.Group], test)
-	}
-
-	// set points
-	for _, group := range polyset.Groups {
-		gtt, ok := testsByGroup[group.Name]
-		if !ok || len(gtt) == 0 {
-			continue
-		}
-
-		switch group.PointsPolicy {
-		case "each-test":
-			for _, gt := range gtt {
-				gt.Score = group.Points
-			}
-		case "complete-group":
-			credit := float64(group.Points)
-			for i := 0; i < len(gtt); i++ {
-				gtt[i].Score = float32(math.Min(math.Floor(credit/float64(len(gtt)-i)), credit))
-				credit -= float64(gtt[i].Score)
-			}
-		}
 	}
 
 	return
