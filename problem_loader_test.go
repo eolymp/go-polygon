@@ -110,4 +110,45 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			t.Errorf("Problem statements do not match:\n want %v\n  got %v", want, got)
 		}
 	})
+
+	t.Run("test score adds up to 100", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/03-test-scoring")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		testsets := map[string]*atlaspb.Testset{}
+		for _, testset := range snap.GetTestsets() {
+			testsets[testset.GetId()] = testset
+		}
+
+		// scores grouped by testset index
+		scores := map[uint32][]float32{}
+		for _, test := range snap.GetTests() {
+			index := testsets[test.GetTestsetId()].GetIndex()
+			scores[index] = append(scores[index], test.GetScore())
+		}
+
+		t.Logf("Scores: %v", scores)
+
+		// total score should be 100
+		var score float32
+		for _, test := range snap.GetTests() {
+			score += test.GetScore()
+		}
+
+		if score != 100 {
+			t.Errorf("Problem score does not add up to 100, got %v instead", score)
+		}
+
+		// tests in group #1 should have only zeros
+		if want, got := []float32{0}, scores[1]; !reflect.DeepEqual(want, got) {
+			t.Errorf("Scores in group 1 do not match:\n want: %v\n  got: %v\n", want, got)
+		}
+
+		// tests in group #2 should have 10 points evenly distributed among tests
+		if want, got := []float32{2, 2, 3, 3}, scores[2]; !reflect.DeepEqual(want, got) {
+			t.Errorf("Scores in group 2 do not match:\n want: %v\n  got: %v\n", want, got)
+		}
+	})
 }

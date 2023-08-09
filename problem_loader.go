@@ -14,6 +14,7 @@ import (
 	"github.com/eolymp/go-sdk/eolymp/typewriter"
 	"github.com/google/uuid"
 	"io"
+	"math"
 	"mime"
 	"net/http"
 	"net/url"
@@ -534,7 +535,8 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	}
 
 	testsetIndexByGroup := p.mapGroupToIndex(polyset)
-	testsetIDByGroup := map[string]string{}
+	testsByGroup := map[string][]*atlaspb.Test{}
+	testsetByGroup := map[string]*atlaspb.Testset{}
 
 	// read testsets
 	for name, index := range testsetIndexByGroup {
@@ -578,7 +580,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			}
 		}
 
-		testsetIDByGroup[name] = testset.Id
+		testsetByGroup[name] = testset
 		testsets = append(testsets, testset)
 	}
 
@@ -594,17 +596,45 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			return nil, nil, err
 		}
 
-		tests = append(tests, &atlaspb.Test{
-			TestsetId:      testsetIDByGroup[polytest.Group],
+		testset, ok := testsetByGroup[polytest.Group]
+		if !ok {
+			continue
+		}
+
+		test := &atlaspb.Test{
+			TestsetId:      testset.GetId(),
 			Index:          int32(index),
 			Example:        polytest.Sample,
-			Score:          0,
+			Score:          polytest.Points,
 			InputObjectId:  input,
 			AnswerObjectId: answer,
-		})
+		}
+
+		tests = append(tests, test)
+
+		testsByGroup[polytest.Group] = append(testsByGroup[polytest.Group], test)
 	}
 
-	// todo: set points
+	// set points
+	for _, group := range polyset.Groups {
+		gtt, ok := testsByGroup[group.Name]
+		if !ok || len(gtt) == 0 {
+			continue
+		}
+
+		switch group.PointsPolicy {
+		case "each-test":
+			for _, gt := range gtt {
+				gt.Score = group.Points
+			}
+		case "complete-group":
+			credit := float64(group.Points)
+			for i := 0; i < len(gtt); i++ {
+				gtt[i].Score = float32(math.Min(math.Floor(credit/float64(len(gtt)-i)), credit))
+				credit -= float64(gtt[i].Score)
+			}
+		}
+	}
 
 	return
 }
