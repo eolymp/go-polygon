@@ -71,7 +71,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 	ctx := context.Background()
 	loader := NewProblemLoader(&assetMock{}, &blobMock{}, &loggerMock{t: t})
 
-	t.Run("tag to topic mapping", func(t *testing.T) {
+	t.Run("import topics", func(t *testing.T) {
 		snap, err := loader.Snapshot(ctx, ".testdata/01-tag-to-topic")
 		if err != nil {
 			t.Fatal("Problem snapshot has failed:", err)
@@ -86,7 +86,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 	})
 
-	t.Run("importing statements", func(t *testing.T) {
+	t.Run("import statements", func(t *testing.T) {
 		snap, err := loader.Snapshot(ctx, ".testdata/02-statements")
 		if err != nil {
 			t.Fatal("Problem snapshot has failed:", err)
@@ -111,7 +111,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 	})
 
-	t.Run("import points from problem.xml", func(t *testing.T) {
+	t.Run("import test points from problem.xml", func(t *testing.T) {
 		snap, err := loader.Snapshot(ctx, ".testdata/03-test-scoring-with-points")
 		if err != nil {
 			t.Fatal("Problem snapshot has failed:", err)
@@ -162,6 +162,35 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		if !reflect.DeepEqual(want, got) {
 			t.Errorf("Scores in group 2 do not match:\n want: %v\n  got: %v\n", want, got)
+		}
+	})
+
+	t.Run("import tutorials", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/05-tutorials")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		got := snap.GetEditorials()
+		want := []*atlaspb.Editorial{
+			{Locale: "en", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{English}\r\nEnglish Editorial\r\n\\end{tutorial}\r\n"}}},
+			{Locale: "uk", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{Ukrainian}\r\nUkrainian Editorial\r\n\\end{tutorial}\r\n"}}},
+		}
+
+		if len(got) != len(want) {
+			t.Fatal("Number of tutorials and editorials does not match")
+		}
+
+		for i := range want {
+			// erase content if it matches to simplify error output
+			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
+				want[i].Content = nil
+				got[i].Content = nil
+			}
+
+			if !reflect.DeepEqual(want[i], got[i]) {
+				t.Errorf("Problem editorials[%v] do not match:\n want %v\n  got %v", i, want, got)
+			}
 		}
 	})
 }

@@ -116,6 +116,11 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		return nil, fmt.Errorf("unable to read tests: %w", err)
 	}
 
+	editorials, err := p.editorials(ctx, path, spec)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read tutorials: %w", err)
+	}
+
 	return &atlaspb.Snapshot{
 		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags)},
 		Checker:     checker,
@@ -125,6 +130,7 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		Attachments: attachments,
 		Testsets:    testsets,
 		Tests:       tests,
+		Editorials:  editorials,
 	}, nil
 }
 
@@ -457,6 +463,31 @@ func (p *ProblemLoader) statements(ctx context.Context, path string, spec *Speci
 	}
 
 	return statements, nil
+}
+
+func (p *ProblemLoader) editorials(ctx context.Context, path string, spec *Specification) (editorials []*atlaspb.Editorial, err error) {
+	for _, tutorial := range spec.Tutorials {
+		if tutorial.Type != "application/x-tex" {
+			continue
+		}
+
+		locale, err := LocaleFromLanguage(tutorial.Language)
+		if err != nil {
+			continue
+		}
+
+		data, err := os.ReadFile(filepath.Join(path, tutorial.Path))
+		if err != nil {
+			return nil, fmt.Errorf("unable to read problem-properties.json: %w", err)
+		}
+
+		editorials = append(editorials, &atlaspb.Editorial{
+			Locale:  locale,
+			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: string(data)}},
+		})
+	}
+
+	return editorials, nil
 }
 
 // todo: add grader to the templates

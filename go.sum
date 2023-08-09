@@ -1,5 +1,5 @@
-github.com/eolymp/go-sdk v0.0.0-20230807204545-0605311c8f8c h1:n+LBhwoGrOO8afn/nd3IU4TrjUD9FyPp+eqrkRakeNs=
-github.com/eolymp/go-sdk v0.0.0-20230807204545-0605311c8f8c/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
+github.com/eolymp/go-sdk v0.0.0-20230809182653-e88dcfddd754 h1:hBIFaA8OMaDtd8jti1TKLAzM19sCh7wOi7t5sH9Fi2w=
+github.com/eolymp/go-sdk v0.0.0-20230809182653-e88dcfddd754/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.3 h1:KhyjKVUg7Usr/dYsdSqoFveMYd5ko72D+zANwlG1mmg=
 github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=

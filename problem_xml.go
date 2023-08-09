@@ -3,7 +3,7 @@ package polygon
 type Specification struct {
 	Names      []SpecificationName      `xml:"names>name"`
 	Statements []SpecificationStatement `xml:"statements>statement"`
-	Solutions  []SpecificationSolution  `xml:"tutorials>tutorial"`
+	Tutorials  []SpecificationTutorial  `xml:"tutorials>tutorial"`
 	Templates  []SpecificationTemplate  `xml:"files>executables>executable"`
 	Graders    []SpecificationGrader    `xml:"files>resources>file"`
 	Materials  []SpecificationMaterial  `xml:"materials>material"`
@@ -26,7 +26,7 @@ type SpecificationStatement struct {
 	Type     string `xml:"type,attr"`
 }
 
-type SpecificationSolution struct {
+type SpecificationTutorial struct {
 	Charset  string `xml:"charset,attr"`
 	Language string `xml:"language,attr"`
 	MathJAX  bool   `xml:"mathjax,attr"`
