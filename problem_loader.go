@@ -121,6 +121,11 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		return nil, fmt.Errorf("unable to read tutorials: %w", err)
 	}
 
+	solutions, err := p.solutions(ctx, path, spec)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read solutions: %w", err)
+	}
+
 	return &atlaspb.Snapshot{
 		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags)},
 		Checker:     checker,
@@ -131,6 +136,7 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		Testsets:    testsets,
 		Tests:       tests,
 		Editorials:  editorials,
+		Solutions:   solutions,
 	}, nil
 }
 
@@ -488,6 +494,57 @@ func (p *ProblemLoader) editorials(ctx context.Context, path string, spec *Speci
 	}
 
 	return editorials, nil
+}
+
+func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specification) (solutions []*atlaspb.Solution, err error) {
+	for _, solution := range spec.Solutions {
+		if len(solution.Sources) == 0 {
+			continue
+		}
+
+		source := solution.Sources[0]
+
+		runtime, ok := SourceTypeToRuntime(source.Type)
+		if !ok {
+			continue
+		}
+
+		kind := atlaspb.Solution_UNSET
+		switch solution.Tag {
+		case "main", "accepted":
+			kind = atlaspb.Solution_CORRECT
+		case "rejected":
+			kind = atlaspb.Solution_INCORRECT
+		case "wrong-answer":
+			kind = atlaspb.Solution_WRONG_ANSWER
+		case "time-limit-exceeded":
+			kind = atlaspb.Solution_TIMEOUT
+		case "time-limit-exceeded-or-accepted":
+			kind = atlaspb.Solution_TIMEOUT_OR_ACCEPTED
+		case "memory-limit-exceeded":
+			kind = atlaspb.Solution_OVERFLOW
+		case "failed":
+			kind = atlaspb.Solution_FAILURE
+		case "time-limit-exceeded-or-memory-limit-exceeded", "presentation-error":
+			kind = atlaspb.Solution_DONT_RUN
+		default:
+			continue
+		}
+
+		data, err := os.ReadFile(filepath.Join(path, source.Path))
+		if err != nil {
+			return nil, fmt.Errorf("unable to read solution source %#v: %w", source.Path, err)
+		}
+
+		solutions = append(solutions, &atlaspb.Solution{
+			Name:    filepath.Base(source.Path),
+			Runtime: runtime,
+			Source:  string(data),
+			Type:    kind,
+		})
+	}
+
+	return solutions, nil
 }
 
 // todo: add grader to the templates

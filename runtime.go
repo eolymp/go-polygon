@@ -14,3 +14,15 @@ var runtimeMapping = map[string][]string{
 	"ruby:2.4":        {"ruby"},
 	"rust:1.46":       {"rust"},
 }
+
+func SourceTypeToRuntime(t string) (string, bool) {
+	for runtime, kinds := range runtimeMapping {
+		for _, kind := range kinds {
+			if kind == t {
+				return runtime, true
+			}
+		}
+	}
+
+	return "", false
+}

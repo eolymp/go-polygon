@@ -10,6 +10,7 @@ type Specification struct {
 	Judging    SpecificationJudging     `xml:"judging"`
 	Checker    SpecificationChecker     `xml:"assets>checker"`
 	Interactor SpecificationInteractor  `xml:"assets>interactor"`
+	Solutions  []SpecificationSolution  `xml:"assets>solutions>solution"`
 	Tags       []SpecificationTag       `xml:"tags>tag"`
 }
 
@@ -52,6 +53,12 @@ type SpecificationGraderAsset struct {
 type SpecificationMaterial struct {
 	Path    string `xml:"path,attr"`
 	Publish string `xml:"publish,attr"`
+}
+
+type SpecificationSolution struct {
+	Tag      string                `xml:"tag,attr"`
+	Sources  []SpecificationSource `xml:"source"`
+	Binaries []SpecificationBinary `xml:"binary"`
 }
 
 type SpecificationJudging struct {

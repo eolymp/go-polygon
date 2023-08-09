@@ -72,7 +72,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 	loader := NewProblemLoader(&assetMock{}, &blobMock{}, &loggerMock{t: t})
 
 	t.Run("import topics", func(t *testing.T) {
-		snap, err := loader.Snapshot(ctx, ".testdata/01-tag-to-topic")
+		snap, err := loader.Snapshot(ctx, ".testdata/01-topics")
 		if err != nil {
 			t.Fatal("Problem snapshot has failed:", err)
 		}
@@ -100,14 +100,20 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			Author:  "Anton Tsypko",
 		}}
 
-		if !reflect.DeepEqual(want, got) {
-			// erase statements if they match to simplify output
-			if len(want) != 0 && len(got) != 0 && want[0].GetContent().GetLatex() == got[0].GetContent().GetLatex() {
-				want[0].Content = nil
-				got[0].Content = nil
+		if len(got) != len(want) {
+			t.Fatalf("Number of solutions does not match: want %v, got %v", len(want), len(got))
+		}
+
+		for i := range want {
+			// erase content if it matches to simplify error output
+			if want[i].GetContent().GetLatex() == want[i].GetContent().GetLatex() {
+				want[i].Content = nil
+				got[i].Content = nil
 			}
 
-			t.Errorf("Problem statements do not match:\n want %v\n  got %v", want, got)
+			if !reflect.DeepEqual(want[i], got[i]) {
+				t.Errorf("Problem statements[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
+			}
 		}
 	})
 
@@ -189,7 +195,44 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(want[i], got[i]) {
-				t.Errorf("Problem editorials[%v] do not match:\n want %v\n  got %v", i, want, got)
+				t.Errorf("Problem editorials[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
+			}
+		}
+	})
+
+	t.Run("import solutions", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/06-solutions")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		got := snap.GetSolutions()
+		want := []*atlaspb.Solution{
+			{Name: "main.cpp", Runtime: "cpp:17-gnu10", Source: "main.cpp content", Type: atlaspb.Solution_CORRECT},
+			{Name: "rejected.cpp", Runtime: "cpp:17-gnu10", Source: "rejected.cpp content", Type: atlaspb.Solution_INCORRECT},
+			{Name: "accepted.cpp", Runtime: "cpp:17-gnu10", Source: "accepted.cpp content", Type: atlaspb.Solution_CORRECT},
+			{Name: "wrong-answer.cpp", Runtime: "cpp:17-gnu10", Source: "wrong-answer.cpp content", Type: atlaspb.Solution_WRONG_ANSWER},
+			{Name: "time-limit-exceeded.cpp", Runtime: "cpp:17-gnu10", Source: "time-limit-exceeded.cpp content", Type: atlaspb.Solution_TIMEOUT},
+			{Name: "time-limit-exceeded-or-accepted.cpp", Runtime: "cpp:17-gnu10", Source: "time-limit-exceeded-or-accepted.cpp content", Type: atlaspb.Solution_TIMEOUT_OR_ACCEPTED},
+			{Name: "time-limit-exceeded-or-memory-limit-exceeded.cpp", Runtime: "cpp:17-gnu10", Source: "time-limit-exceeded-or-memory-limit-exceeded.cpp content", Type: atlaspb.Solution_DONT_RUN},
+			{Name: "memory-limit-exceeded.cpp", Runtime: "cpp:17-gnu10", Source: "memory-limit-exceeded.cpp content", Type: atlaspb.Solution_OVERFLOW},
+			{Name: "presentation-error.cpp", Runtime: "cpp:17-gnu10", Source: "presentation-error.cpp content", Type: atlaspb.Solution_DONT_RUN},
+			{Name: "failed.cpp", Runtime: "cpp:17-gnu10", Source: "failed.cpp content", Type: atlaspb.Solution_FAILURE},
+		}
+
+		if len(got) != len(want) {
+			t.Fatalf("Number of solutions does not match: want %v, got %v", len(want), len(got))
+		}
+
+		for i := range want {
+			// erase content if it matches to simplify error output
+			if want[i].GetSource() == got[i].GetSource() {
+				want[i].Source = ""
+				got[i].Source = ""
+			}
+
+			if !reflect.DeepEqual(want[i], got[i]) {
+				t.Errorf("Problem solutions[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
 			}
 		}
 	})

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<problem revision="3" short-name="constructive-3k" url="https://polygon.codeforces.com/p0AGN0C/akharasau/constructive-3k">
+    <judging cpu-name="Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz" cpu-speed="3600" input-file="" output-file="" run-count="1">
+        <testset name="tests">
+            <time-limit>2000</time-limit>
+            <memory-limit>536870912</memory-limit>
+            <test-count>49</test-count>
+            <input-path-pattern>tests/%02d</input-path-pattern>
+            <answer-path-pattern>tests/%02d.a</answer-path-pattern>
+        </testset>
+    </judging>
+    <assets>
+        <checker name="std::ncmp.cpp" type="testlib">
+            <source path="files/check.cpp" type="cpp.g++17"/>
+            <binary path="check.exe" type="exe.win32"/>
+            <copy path="check.cpp"/>
+            <testset>
+                <test-count>0</test-count>
+                <input-path-pattern>files/tests/checker-tests/%02d</input-path-pattern>
+                <output-path-pattern>files/tests/checker-tests/%02d.o</output-path-pattern>
+                <answer-path-pattern>files/tests/checker-tests/%02d.a</answer-path-pattern>
+                <tests/>
+            </testset>
+        </checker>
+        <solutions>
+            <solution tag="main">
+                <source path="solutions/main.cpp" type="cpp.g++17"/>
+                <binary path="solutions/main.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="rejected">
+                <source path="solutions/rejected.cpp" type="cpp.g++17"/>
+                <binary path="solutions/rejected.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="accepted">
+                <source path="solutions/accepted.cpp" type="cpp.g++17"/>
+                <binary path="solutions/accepted.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="wrong-answer">
+                <source path="solutions/wrong-answer.cpp" type="cpp.g++17"/>
+                <binary path="solutions/wrong-answer.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="time-limit-exceeded">
+                <source path="solutions/time-limit-exceeded.cpp" type="cpp.g++17"/>
+                <binary path="solutions/time-limit-exceeded.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="time-limit-exceeded-or-accepted">
+                <source path="solutions/time-limit-exceeded-or-accepted.cpp" type="cpp.g++17"/>
+                <binary path="solutions/time-limit-exceeded-or-accepted.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="time-limit-exceeded-or-memory-limit-exceeded">
+                <source path="solutions/time-limit-exceeded-or-memory-limit-exceeded.cpp" type="cpp.g++17"/>
+                <binary path="solutions/time-limit-exceeded-or-memory-limit-exceeded.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="memory-limit-exceeded">
+                <source path="solutions/memory-limit-exceeded.cpp" type="cpp.g++17"/>
+                <binary path="solutions/memory-limit-exceeded.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="presentation-error">
+                <source path="solutions/presentation-error.cpp" type="cpp.g++17"/>
+                <binary path="solutions/presentation-error.exe" type="exe.win32"/>
+            </solution>
+            <solution tag="failed">
+                <source path="solutions/failed.cpp" type="cpp.g++17"/>
+                <binary path="solutions/failed.exe" type="exe.win32"/>
+            </solution>
+        </solutions>
+    </assets>
+</problem>
