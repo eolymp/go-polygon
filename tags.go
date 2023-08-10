@@ -10,7 +10,7 @@ var tagMapping = map[string][]string{
 	"arrays":                    {},
 	"backtracking":              {},
 	"bacs_review":               {},
-	"beginner":                  {},
+	"beginner":                  {"pjjft5joql5j95u7radbchs51g"},
 	"bfs":                       {"c79dhqpr712uv2feapbaodn6ds"},
 	"binary search":             {"3hr591p5lh7a9c5k9bg8kpvctg"},
 	"binsearch":                 {"3hr591p5lh7a9c5k9bg8kpvctg"},
