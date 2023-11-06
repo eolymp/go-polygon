@@ -2,13 +2,13 @@ package polygon
 
 import (
 	"context"
-	typewriterpb "github.com/eolymp/go-sdk/eolymp/typewriter"
+	assetservice "github.com/eolymp/go-sdk/eolymp/asset"
 	"google.golang.org/grpc"
 )
 
 type assetMock struct {
 }
 
-func (assetMock) UploadAsset(ctx context.Context, in *typewriterpb.UploadAssetInput, opts ...grpc.CallOption) (*typewriterpb.UploadAssetOutput, error) {
+func (assetMock) UploadAsset(ctx context.Context, in *assetservice.UploadFileInput, opts ...grpc.CallOption) (*assetservice.UploadFileOutput, error) {
 	return nil, nil
 }

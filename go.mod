@@ -3,7 +3,7 @@ module github.com/eolymp/go-polygon
 go 1.20
 
 require (
-	github.com/eolymp/go-sdk v0.0.0-20230809182653-e88dcfddd754
+	github.com/eolymp/go-sdk v0.0.0-20231104184548-48549e578525
 	github.com/google/uuid v1.3.0
 	google.golang.org/grpc v1.57.0
 )
