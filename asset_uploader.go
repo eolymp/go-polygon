@@ -7,5 +7,5 @@ import (
 )
 
 type assetUploader interface {
-	UploadAsset(ctx context.Context, in *assetservice.UploadFileInput, opts ...grpc.CallOption) (*assetservice.UploadFileOutput, error)
+	UploadFile(ctx context.Context, in *assetservice.UploadFileInput, opts ...grpc.CallOption) (*assetservice.UploadFileOutput, error)
 }

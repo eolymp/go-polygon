@@ -593,7 +593,7 @@ func (p *ProblemLoader) attachments(ctx context.Context, path string, spec *Spec
 
 		name := filepath.Base(material.Path)
 
-		asset, err := p.assets.UploadAsset(ctx, &assetservice.UploadFileInput{Name: name, Data: data})
+		asset, err := p.assets.UploadFile(ctx, &assetservice.UploadFileInput{Name: name, Data: data})
 		if err != nil {
 			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
 		}
