@@ -7,7 +7,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	assetservice "github.com/eolymp/go-sdk/eolymp/asset"
+	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
 	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
 	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
 	executorpb "github.com/eolymp/go-sdk/eolymp/executor"
@@ -593,7 +593,7 @@ func (p *ProblemLoader) attachments(ctx context.Context, path string, spec *Spec
 
 		name := filepath.Base(material.Path)
 
-		asset, err := p.assets.UploadFile(ctx, &assetservice.UploadFileInput{Name: name, Data: data})
+		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: name, Data: data})
 		if err != nil {
 			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
 		}
