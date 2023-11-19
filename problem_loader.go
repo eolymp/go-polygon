@@ -630,7 +630,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		testset := &atlaspb.Testset{
 			Id:             uuid.New().String(),
 			Index:          index,
-			CpuLimit:       uint32(polyset.TimeLimit),
+			TimeLimit:      uint32(polyset.TimeLimit),
 			MemoryLimit:    uint64(polyset.MemoryLimit),
 			FileSizeLimit:  536870912,
 			ScoringMode:    atlaspb.ScoringMode_ALL, // assume the problem is ICPC and uses typical ICPC feedback
