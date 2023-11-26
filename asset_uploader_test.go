@@ -10,5 +10,5 @@ type assetMock struct {
 }
 
 func (assetMock) UploadFile(ctx context.Context, in *assetpb.UploadFileInput, opts ...grpc.CallOption) (*assetpb.UploadFileOutput, error) {
-	return nil, nil
+	return &assetpb.UploadFileOutput{FileUrl: "https://eolympusercontent.com/" + in.Name}, nil
 }
