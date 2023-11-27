@@ -754,12 +754,12 @@ func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text st
 			continue
 		}
 
-		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: name, Data: data})
+		asset, err := p.assets.UploadImage(ctx, &assetpb.UploadImageInput{Name: name, Data: data})
 		if err != nil {
 			p.log.Warning("unable to upload image", map[string]any{"error": err.Error()})
 			continue
 		}
-		text = strings.Replace(text, full, prefix+asset.GetFileUrl()+suffix, -1)
+		text = strings.Replace(text, full, prefix+asset.GetImageUrl()+suffix, -1)
 	}
 	return text
 }
