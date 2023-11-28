@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/eolymp/go-sdk v0.0.0-20231104184548-48549e578525
 	github.com/google/uuid v1.3.0
-	google.golang.org/grpc v1.57.0
+	google.golang.org/grpc v1.57.1
 )
 
 require (
