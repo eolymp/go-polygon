@@ -106,7 +106,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		for i := range want {
 			// erase content if it matches to simplify error output
-			if want[i].GetContent().GetLatex() == want[i].GetContent().GetLatex() {
+			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
 				want[i].Content = nil
 				got[i].Content = nil
 			}
@@ -236,4 +236,36 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("import problem with images", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/07-images-in-text")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		got := snap.GetStatements()
+		want := []*atlaspb.Statement{{
+			Locale:  "uk",
+			Title:   "Сума масиву",
+			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "Дано $n$ цілих чисел $a_1, a_2, \\ldots, a_n$. Знайдіть їхню суму. \\includegraphics[width=12cm]{https://eolympusercontent.com/image.png} \\includegraphics{https://eolympusercontent.com/image2.png} \n\n\\InputFile\n\nПерший рядок містить ціле число $n$ ($1 \\leq n \\leq 2 \\cdot 10^6$)~--- кількість чисел.\r\n\r\nДругий рядок містить $n$ цілих чисел $a_1, a_2, \\ldots, a_n$ ($0 \\leq a_i \\leq 10^9$)~--- числа масиву.\n\n\\OutputFile\n\nВиведіть одне число~--- суму масиву.\n\n\\Scoring\n\n\\begin{enumerate}\r\n\\item ($10$ балів): $n \\leq 1\\,000$, $a_i \\leq 1\\,000$;\r\n\\item ($10$ балів): $n \\leq 10\\,000$;\r\n\\item ($8$ балів): $n \\leq 200\\,000$;\r\n\\item ($8$ балів): $n \\leq 400\\,000$;\r\n\\item ($8$ балів): $n \\leq 600\\,000$;\r\n\\item ($8$ балів): $n \\leq 800\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,000\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,200\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,400\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,600\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,800\\,000$;\r\n\\item ($8$ балів): повні обмеження.\r\n\\end{enumerate}\r\n"}},
+			Author:  "Anton Tsypko",
+		}}
+
+		if len(got) != len(want) {
+			t.Fatalf("Number of solutions does not match: want %v, got %v", len(want), len(got))
+		}
+
+		for i := range want {
+			// erase content if it matches to simplify error output
+			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
+				want[i].Content = nil
+				got[i].Content = nil
+			}
+
+			if !reflect.DeepEqual(want[i], got[i]) {
+				t.Errorf("Problem statements[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
+			}
+		}
+	})
+
 }
