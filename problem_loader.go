@@ -826,6 +826,10 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 		})
 	}
 
+	if len(parts) == 0 {
+		return "", nil
+	}
+
 	_, err = p.blobs.CompleteMultipartUpload(ctx, &keeperpb.CompleteMultipartUploadInput{
 		ObjectId: upload.GetObjectId(),
 		UploadId: upload.GetUploadId(),
