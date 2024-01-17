@@ -2,10 +2,11 @@ package polygon
 
 import (
 	"context"
-	typewriterpb "github.com/eolymp/go-sdk/eolymp/typewriter"
+	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
 	"google.golang.org/grpc"
 )
 
 type assetUploader interface {
-	UploadAsset(ctx context.Context, in *typewriterpb.UploadAssetInput, opts ...grpc.CallOption) (*typewriterpb.UploadAssetOutput, error)
+	UploadFile(ctx context.Context, in *assetpb.UploadFileInput, opts ...grpc.CallOption) (*assetpb.UploadFileOutput, error)
+	UploadImage(ctx context.Context, in *assetpb.UploadImageInput, opts ...grpc.CallOption) (*assetpb.UploadImageOutput, error)
 }

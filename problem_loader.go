@@ -7,11 +7,11 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
 	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
 	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
 	executorpb "github.com/eolymp/go-sdk/eolymp/executor"
 	keeperpb "github.com/eolymp/go-sdk/eolymp/keeper"
-	"github.com/eolymp/go-sdk/eolymp/typewriter"
 	"github.com/google/uuid"
 	"io"
 	"math"
@@ -20,12 +20,15 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 )
 
 const objectChunkSize = 5242880
+
+var imageFinder = regexp.MustCompile("(\\\\includegraphics.*?{)(.+?)(})")
 
 type ProblemLoader struct {
 	assets assetUploader
@@ -460,10 +463,13 @@ func (p *ProblemLoader) statements(ctx context.Context, path string, spec *Speci
 			parts = append(parts, examples)
 		}
 
+		latex := strings.Join(parts, "\n\n")
+		latex = p.uploadImagesFromLatex(ctx, filepath.Join(path, filepath.Dir(statement.Path)), latex)
+
 		statements = append(statements, &atlaspb.Statement{
 			Locale:  locale,
 			Title:   props.Name,
-			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: strings.Join(parts, "\n\n")}},
+			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: latex}},
 			Author:  props.AuthorName,
 		})
 	}
@@ -593,12 +599,12 @@ func (p *ProblemLoader) attachments(ctx context.Context, path string, spec *Spec
 
 		name := filepath.Base(material.Path)
 
-		asset, err := p.assets.UploadAsset(ctx, &typewriter.UploadAssetInput{Filename: name, Data: data})
+		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: name, Data: data})
 		if err != nil {
 			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
 		}
 
-		attachments = append(attachments, &atlaspb.Attachment{Name: name, Link: asset.GetLink()})
+		attachments = append(attachments, &atlaspb.Attachment{Name: name, Link: asset.GetFileUrl()})
 	}
 
 	return
@@ -721,6 +727,41 @@ func (p *ProblemLoader) tags(spec *Specification) map[string]bool {
 	}
 
 	return tags
+}
+
+// uploadImagesFromLatex finds images in text, uploads them and replaces original names with links.
+// e.g. \includegraphics[width=12cm]{myimage.png} -> \includegraphics[width=12cm]{https://...}
+func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text string) string {
+	images := imageFinder.FindAllStringSubmatch(text, -1)
+
+	replaced := map[string]bool{}
+	for _, image := range images {
+		if want, got := 4, len(image); want != got {
+			p.log.Warning("Captured unexpected number of groups", map[string]any{"want": want, "got": got})
+		}
+		full := image[0]
+		prefix := image[1]
+		name := image[2]
+		suffix := image[3]
+
+		if _, ok := replaced[full]; ok {
+			continue
+		}
+
+		data, err := os.ReadFile(filepath.Join(path, name))
+		if err != nil {
+			p.log.Warning("unable to read image", map[string]any{"error": err.Error()})
+			continue
+		}
+
+		asset, err := p.assets.UploadImage(ctx, &assetpb.UploadImageInput{Name: name, Data: data})
+		if err != nil {
+			p.log.Warning("unable to upload image", map[string]any{"error": err.Error()})
+			continue
+		}
+		text = strings.Replace(text, full, prefix+asset.GetImageUrl()+suffix, -1)
+	}
+	return text
 }
 
 // pickTestset find "main" testset for a problem
