@@ -811,8 +811,9 @@ func (p *ProblemLoader) mapGroupToIndex(testset SpecificationTestset) map[string
 			continue
 		}
 
-		if strings.Contains(strings.ToLower(name), "sample") {
+		if strings.Contains(strings.ToLower(name), "sample") || name == "0" {
 			mapping[name] = 0
+			continue
 		}
 
 		mapping[name] = index
