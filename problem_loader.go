@@ -796,15 +796,19 @@ func (p *ProblemLoader) mapGroupToIndex(testset SpecificationTestset) map[string
 
 	// collect groups defined in tests
 	for _, test := range testset.Tests {
-		groupName := test.Group
-		if value, err := strconv.Atoi(groupName); err == nil && len(groupName) <= 4 {
-			groupName = fmt.Sprintf("%04d", value)
-		}
-		names = append(names, groupName)
+		names = append(names, test.Group)
 	}
 
 	// sort everything
-	sort.Strings(names)
+	sort.Slice(names, func(i, j int) bool {
+		firstValue, err1 := strconv.Atoi(names[i])
+		secondValue, err2 := strconv.Atoi(names[j])
+		if err1 == nil && err2 == nil {
+			return firstValue < secondValue
+		} else {
+			return names[i] < names[j]
+		}
+	})
 
 	// assign numbers starting from 1, except if group is called "sample"
 	index := uint32(1)
