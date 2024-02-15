@@ -800,7 +800,15 @@ func (p *ProblemLoader) mapGroupToIndex(testset SpecificationTestset) map[string
 	}
 
 	// sort everything
-	sort.Strings(names)
+	sort.Slice(names, func(i, j int) bool {
+		firstValue, err1 := strconv.Atoi(names[i])
+		secondValue, err2 := strconv.Atoi(names[j])
+		if err1 == nil && err2 == nil {
+			return firstValue < secondValue
+		} else {
+			return names[i] < names[j]
+		}
+	})
 
 	// assign numbers starting from 1, except if group is called "sample"
 	index := uint32(1)
