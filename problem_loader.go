@@ -344,7 +344,7 @@ func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specific
 	switch spec.Checker.Name {
 	case "std::ncmp.cpp": // Single or more int64, ignores whitespaces
 		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 0, CaseSensitive: true}, nil
-	case "std::rcmp4.cpp": // Single or more int64, ignores whitespaces
+	case "std::rcmp4.cpp": // Single or more double, max any error 1E-4
 		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 4, CaseSensitive: true}, nil
 	case "std::rcmp6.cpp": // Single or more double, max any error 1E-6
 		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 6, CaseSensitive: true}, nil
