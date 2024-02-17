@@ -342,18 +342,19 @@ func (p *ProblemLoader) cleanup(path string) {
 
 func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specification) (*executorpb.Verifier, error) {
 	switch spec.Checker.Name {
-	case "std::rcmp4.cpp", // Single or more double, max any error 1E-4
-		"std::ncmp.cpp": // Single or more int64, ignores whitespaces
+	case "std::ncmp.cpp": // Single or more int64, ignores whitespaces
+		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 0, CaseSensitive: true}, nil
+	case "std::rcmp4.cpp": // Single or more double, max any error 1E-4
 		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 4, CaseSensitive: true}, nil
 	case "std::rcmp6.cpp": // Single or more double, max any error 1E-6
 		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 6, CaseSensitive: true}, nil
 	case "std::rcmp9.cpp": // Single or more double, max any error 1E-9
 		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 9, CaseSensitive: true}, nil
 	case "std::wcmp.cpp": // Sequence of tokens
-		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 5, CaseSensitive: true}, nil
+		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 0, CaseSensitive: true}, nil
 	case "std::nyesno.cpp", // Zero or more yes/no, case-insensitive
 		"std::yesno.cpp": // Single yes or no, case-insensitive
-		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 5, CaseSensitive: false}, nil
+		return &executorpb.Verifier{Type: executorpb.Verifier_TOKENS, Precision: 0, CaseSensitive: false}, nil
 	case "std::fcmp.cpp", // Lines, doesn't ignore whitespaces
 		"std::hcmp.cpp", // Single huge integer
 		"std::lcmp.cpp": // Lines, ignores whitespaces
