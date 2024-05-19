@@ -557,7 +557,7 @@ func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specif
 // todo: add grader to the templates
 func (p *ProblemLoader) templates(ctx context.Context, path string, spec *Specification) (templates []*atlaspb.Template, err error) {
 	languages := map[string][]string{
-		"files/template_cpp.cpp":   {"gpp", "cpp:17-gnu10"},
+		"files/template_cpp.cpp":   {"gpp", "cpp:17-gnu10", "cpp:20-gnu10"},
 		"files/template_java.java": {"java"},
 		"files/template_pas.pas":   {"fpc"},
 		"files/template_py.py":     {"pypy", "python"},
