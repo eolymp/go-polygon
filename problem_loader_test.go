@@ -268,4 +268,25 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 	})
 
+	// use `eolymp_tl=` and `eolymp_ml=` tags to override time and memory limits
+	t.Run("import problem with custom time and memory limits", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/08-custom-limit")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		testsets := snap.GetTestsets()
+		if len(testsets) != 1 {
+			t.Fatalf("There must be exactly one test set, got %v instead", len(testsets))
+		}
+
+		if want, got := uint32(750), testsets[0].CpuLimit; want != got {
+			t.Errorf("Time limit override not applied: want %v, got %v", want, got)
+		}
+
+		if want, got := uint64(201326592), testsets[0].MemoryLimit; want != got {
+			t.Errorf("Memory limit override not applied: want %v, got %v", want, got)
+		}
+	})
+
 }

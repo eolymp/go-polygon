@@ -738,15 +738,6 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	return
 }
 
-func (p *ProblemLoader) tags(spec *Specification) map[string]bool {
-	tags := map[string]bool{}
-	for _, tag := range spec.Tags {
-		tags[tag.Value] = true
-	}
-
-	return tags
-}
-
 // uploadImagesFromLatex finds images in text, uploads them and replaces original names with links.
 // e.g. \includegraphics[width=12cm]{myimage.png} -> \includegraphics[width=12cm]{https://...}
 func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text string) string {
