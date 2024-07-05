@@ -620,9 +620,26 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	// pick testset called "tests" or first one
 	polyset := p.pickTestset(spec)
 
-	// no idea... ask Anton
-	tags := p.tags(spec)
-	blockMin := tags["block_min"] || tags["min_block"]
+	// eolymp specific overrides
+	blockMin := false
+	timeLimit := polyset.TimeLimit
+	memLimit := polyset.MemoryLimit
+
+	for _, tag := range spec.Tags {
+		switch {
+		case tag.Value == "block_min" || tag.Value == "min_block":
+			blockMin = true
+		case strings.HasPrefix(tag.Value, "eolymp_tl="):
+			if val, err := strconv.Atoi(tag.Value[10:]); err == nil {
+				timeLimit = val
+			}
+
+		case strings.HasPrefix(tag.Value, "eolymp_ml="):
+			if val, err := strconv.Atoi(tag.Value[10:]); err == nil {
+				memLimit = val
+			}
+		}
+	}
 
 	groupByName := map[string]SpecificationGroup{}
 	for _, group := range polyset.Groups {
@@ -637,8 +654,8 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		testset := &atlaspb.Testset{
 			Id:             uuid.New().String(),
 			Index:          index,
-			CpuLimit:       uint32(polyset.TimeLimit),
-			MemoryLimit:    uint64(polyset.MemoryLimit),
+			CpuLimit:       uint32(timeLimit),
+			MemoryLimit:    uint64(memLimit),
 			FileSizeLimit:  536870912,
 			ScoringMode:    atlaspb.ScoringMode_ALL, // assume the problem is ICPC and uses typical ICPC feedback
 			FeedbackPolicy: atlaspb.FeedbackPolicy_ICPC_EXPANDED,
