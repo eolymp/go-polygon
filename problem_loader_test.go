@@ -289,4 +289,32 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 	})
 
+	t.Run("import editorial with images", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/09-images-in-tutorial")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		got := snap.GetEditorials()
+		want := []*atlaspb.Editorial{
+			{Locale: "en", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{English}\r\nEnglish Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/image.png} \\includegraphics{https://eolympusercontent.com/image2.png}\r\n\\end{tutorial}\r\n"}}},
+			{Locale: "uk", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{Ukrainian}\r\nUkrainian Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/image.png}\r\n\\includegraphics{https://eolympusercontent.com/image2.png}\r\n\\end{tutorial}\r\n"}}},
+		}
+
+		if len(got) != len(want) {
+			t.Fatal("Number of tutorials and editorials does not match")
+		}
+
+		for i := range want {
+			// erase content if it matches to simplify error output
+			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
+				want[i].Content = nil
+				got[i].Content = nil
+			}
+
+			if !reflect.DeepEqual(want[i], got[i]) {
+				t.Errorf("Problem editorials[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
+			}
+		}
+	})
 }

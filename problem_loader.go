@@ -494,9 +494,11 @@ func (p *ProblemLoader) editorials(ctx context.Context, path string, spec *Speci
 			return nil, fmt.Errorf("unable to read problem-properties.json: %w", err)
 		}
 
+		latex := p.uploadImagesFromLatex(ctx, filepath.Join(path, filepath.Dir(tutorial.Path)), string(data))
+
 		editorials = append(editorials, &atlaspb.Editorial{
 			Locale:  locale,
-			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: string(data)}},
+			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: latex}},
 		})
 	}
 
@@ -748,6 +750,7 @@ func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text st
 		if want, got := 4, len(image); want != got {
 			p.log.Warning("Captured unexpected number of groups", map[string]any{"want": want, "got": got})
 		}
+
 		full := image[0]
 		prefix := image[1]
 		name := image[2]
@@ -768,6 +771,7 @@ func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text st
 			p.log.Warning("unable to upload image", map[string]any{"error": err.Error()})
 			continue
 		}
+
 		text = strings.Replace(text, full, prefix+asset.GetImageUrl()+suffix, -1)
 	}
 	return text
