@@ -716,12 +716,12 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		}
 
 		test := &atlaspb.Test{
-			TestsetId:      testset.GetId(),
-			Index:          int32(index),
-			Example:        polytest.Sample,
-			Score:          polytest.Points,
-			InputObjectId:  input,
-			AnswerObjectId: answer,
+			TestsetId: testset.GetId(),
+			Index:     int32(index),
+			Example:   polytest.Sample,
+			Score:     polytest.Points,
+			Input:     &atlaspb.Test_InputObjectId{InputObjectId: input},
+			Answer:    &atlaspb.Test_AnswerObjectId{AnswerObjectId: answer},
 		}
 
 		tests = append(tests, test)
