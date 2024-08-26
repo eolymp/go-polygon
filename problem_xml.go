@@ -63,6 +63,7 @@ type SpecificationSolution struct {
 
 type SpecificationJudging struct {
 	Testsets []SpecificationTestset `xml:"testset"`
+	RunCount int                    `xml:"run-count,attr"`
 }
 
 type SpecificationTestset struct {

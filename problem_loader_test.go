@@ -317,4 +317,18 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("import run count", func(t *testing.T) {
+		snap, err := loader.Snapshot(ctx, ".testdata/10-run-count")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		got := snap.GetTesting()
+		want := &atlaspb.TestingConfig{RunCount: 11}
+
+		if !reflect.DeepEqual(want, got) {
+			t.Errorf("Problem testing configuration do not match:\n want %v\n  got %v", want, got)
+		}
+	})
 }

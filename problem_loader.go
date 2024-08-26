@@ -129,8 +129,14 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		return nil, fmt.Errorf("unable to read solutions: %w", err)
 	}
 
+	runs := uint32(spec.Judging.RunCount)
+	if runs <= 0 {
+		runs = 1
+	}
+
 	return &atlaspb.Snapshot{
 		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags)},
+		Testing:     &atlaspb.TestingConfig{RunCount: runs},
 		Checker:     checker,
 		Interactor:  interactor,
 		Statements:  statements,
