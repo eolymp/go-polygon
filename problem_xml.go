@@ -56,9 +56,9 @@ type SpecificationMaterial struct {
 }
 
 type SpecificationSolution struct {
-	Tag      string                `xml:"tag,attr"`
-	Sources  []SpecificationSource `xml:"source"`
-	Binaries []SpecificationBinary `xml:"binary"`
+	Tag    string              `xml:"tag,attr"`
+	Source SpecificationSource `xml:"source"`
+	Binary SpecificationBinary `xml:"binary"`
 }
 
 type SpecificationJudging struct {

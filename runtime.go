@@ -1,7 +1,7 @@
 package polygon
 
 var runtimeMapping = map[string][]string{
-	"cpp:20-gnu10":    {"cpp.g++20", "cpp.gcc11-64-winlibs-g++20"},
+	"cpp:20-gnu10":    {"cpp.g++20", "cpp.gcc11-64-winlibs-g++20", "cpp.gcc13-64-winlibs-g++20"},
 	"cpp:17-gnu10":    {"c.gcc", "cpp.g++", "cpp.g++11", "cpp.g++14", "cpp.g++17", "cpp.ms", "cpp.msys2-mingw64-9-g++17"},
 	"csharp:5-dotnet": {"csharp.mono"},
 	"d:1-gdc":         {"d"},

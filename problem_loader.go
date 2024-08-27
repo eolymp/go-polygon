@@ -129,6 +129,11 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		return nil, fmt.Errorf("unable to read solutions: %w", err)
 	}
 
+	scripts, err := p.scripts(ctx, path, spec)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read solutions: %w", err)
+	}
+
 	runs := uint32(spec.Judging.RunCount)
 	if runs <= 0 {
 		runs = 1
@@ -146,6 +151,7 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		Tests:       tests,
 		Editorials:  editorials,
 		Solutions:   solutions,
+		Scripts:     scripts,
 	}, nil
 }
 
@@ -513,13 +519,7 @@ func (p *ProblemLoader) editorials(ctx context.Context, path string, spec *Speci
 
 func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specification) (solutions []*atlaspb.Solution, err error) {
 	for _, solution := range spec.Solutions {
-		if len(solution.Sources) == 0 {
-			continue
-		}
-
-		source := solution.Sources[0]
-
-		runtime, ok := SourceTypeToRuntime(source.Type)
+		runtime, ok := SourceTypeToRuntime(solution.Source.Type)
 		if !ok {
 			continue
 		}
@@ -546,13 +546,13 @@ func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specif
 			continue
 		}
 
-		data, err := os.ReadFile(filepath.Join(path, source.Path))
+		data, err := os.ReadFile(filepath.Join(path, solution.Source.Path))
 		if err != nil {
-			return nil, fmt.Errorf("unable to read solution source %#v: %w", source.Path, err)
+			return nil, fmt.Errorf("unable to read solution source %#v: %w", solution.Source.Path, err)
 		}
 
 		solutions = append(solutions, &atlaspb.Solution{
-			Name:    filepath.Base(source.Path),
+			Name:    filepath.Base(solution.Source.Path),
 			Runtime: runtime,
 			Source:  string(data),
 			Type:    kind,
@@ -560,6 +560,60 @@ func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specif
 	}
 
 	return solutions, nil
+}
+
+func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specification) (scripts []*atlaspb.Script, err error) {
+	for _, script := range spec.Templates {
+		runtime, ok := SourceTypeToRuntime(script.Source.Type)
+		if !ok {
+			continue
+		}
+
+		data, err := os.ReadFile(filepath.Join(path, script.Source.Path))
+		if err != nil {
+			return nil, fmt.Errorf("unable to read script source %#v: %w", script.Source.Path, err)
+		}
+
+		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: filepath.Base(script.Source.Path), Type: "text/plain", Data: data})
+		if err != nil {
+			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
+		}
+
+		scripts = append(scripts, &atlaspb.Script{
+			Name:      strings.TrimSuffix(filepath.Base(script.Source.Path), filepath.Ext(script.Source.Path)),
+			Runtime:   runtime,
+			SourceUrl: asset.GetFileUrl(),
+		})
+	}
+
+	for _, solution := range spec.Solutions {
+		if solution.Tag != "main" {
+			continue
+		}
+
+		runtime, ok := SourceTypeToRuntime(solution.Source.Type)
+		if !ok {
+			continue
+		}
+
+		data, err := os.ReadFile(filepath.Join(path, solution.Source.Path))
+		if err != nil {
+			return nil, fmt.Errorf("unable to read solution script source %#v: %w", solution.Source.Path, err)
+		}
+
+		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: filepath.Base(solution.Source.Path), Type: "text/plain", Data: data})
+		if err != nil {
+			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
+		}
+
+		scripts = append(scripts, &atlaspb.Script{
+			Name:      "solution",
+			Runtime:   runtime,
+			SourceUrl: asset.GetFileUrl(),
+		})
+	}
+
+	return scripts, nil
 }
 
 // todo: add grader to the templates
@@ -706,16 +760,6 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	// read tests
 	var total float32
 	for index, polytest := range polyset.Tests {
-		input, err := p.uploadObject(ctx, filepath.Join(path, fmt.Sprintf(polyset.InputPathPattern, index+1)))
-		if err != nil {
-			return nil, nil, err
-		}
-
-		answer, err := p.uploadObject(ctx, filepath.Join(path, fmt.Sprintf(polyset.AnswerPathPattern, index+1)))
-		if err != nil {
-			return nil, nil, err
-		}
-
 		testset, ok := testsetByGroup[polytest.Group]
 		if !ok {
 			continue
@@ -726,8 +770,27 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			Index:     int32(index),
 			Example:   polytest.Sample,
 			Score:     polytest.Points,
-			Input:     &atlaspb.Test_InputObjectId{InputObjectId: input},
-			Answer:    &atlaspb.Test_AnswerObjectId{AnswerObjectId: answer},
+		}
+
+		switch polytest.Method {
+		case "generated":
+			command := strings.Split(polytest.Command, " ")
+			test.Input = &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: command[0], Arguments: command[1:]}}
+			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
+
+		default:
+			input, err := p.uploadObject(ctx, filepath.Join(path, fmt.Sprintf(polyset.InputPathPattern, index+1)))
+			if err != nil {
+				return nil, nil, err
+			}
+
+			answer, err := p.uploadObject(ctx, filepath.Join(path, fmt.Sprintf(polyset.AnswerPathPattern, index+1)))
+			if err != nil {
+				return nil, nil, err
+			}
+
+			test.Input = &atlaspb.Test_InputObjectId{InputObjectId: input}
+			test.Answer = &atlaspb.Test_AnswerObjectId{AnswerObjectId: answer}
 		}
 
 		tests = append(tests, test)

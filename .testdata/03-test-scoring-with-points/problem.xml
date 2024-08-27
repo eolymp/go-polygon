@@ -11,32 +11,32 @@
         <input-path-pattern>tests/%02d</input-path-pattern>
         <answer-path-pattern>tests/%02d.a</answer-path-pattern>
         <tests>
-            <test cmd="gen 5 8" group="0" method="generated" points="0.0" sample="true"/>
-            <test cmd="gen 10 10" group="1" method="generated" points="0.0"/>
-            <test cmd="gen 100 100" group="1" method="generated" points="0.0"/>
-            <test cmd="gen 1000 1000" group="1" method="generated" points="0.0"/>
-            <test cmd="gen 1000 1000 z" group="1" method="generated" points="10.0"/>
-            <test cmd="gen 10000 1000000000" group="2" method="generated" points="10.0"/>
-            <test cmd="gen 200000 1000000000 1" group="3" method="generated" points="4.0"/>
-            <test cmd="gen 200000 1000000000 2" group="3" method="generated" points="4.0"/>
-            <test cmd="gen 400000 1000000000 1" group="4" method="generated" points="4.0"/>
-            <test cmd="gen 400000 1000000000 2" group="4" method="generated" points="4.0"/>
-            <test cmd="gen 600000 1000000000 1" group="5" method="generated" points="4.0"/>
-            <test cmd="gen 600000 1000000000 2" group="5" method="generated" points="4.0"/>
-            <test cmd="gen 800000 1000000000 1" group="6" method="generated" points="4.0"/>
-            <test cmd="gen 800000 1000000000 2" group="6" method="generated" points="4.0"/>
-            <test cmd="gen 1000000 1000000000 1" group="7" method="generated" points="4.0"/>
-            <test cmd="gen 1000000 1000000000 2" group="7" method="generated" points="4.0"/>
-            <test cmd="gen 1200000 1000000000 1" group="8" method="generated" points="4.0"/>
-            <test cmd="gen 1200000 1000000000 2" group="8" method="generated" points="4.0"/>
-            <test cmd="gen 1400000 1000000000 1" group="9" method="generated" points="4.0"/>
-            <test cmd="gen 1400000 1000000000 2" group="9" method="generated" points="4.0"/>
-            <test cmd="gen 1600000 1000000000 1" group="10" method="generated" points="4.0"/>
-            <test cmd="gen 1600000 1000000000 2" group="10" method="generated" points="4.0"/>
-            <test cmd="gen 1800000 1000000000 1" group="11" method="generated" points="4.0"/>
-            <test cmd="gen 1800000 1000000000 2" group="11" method="generated" points="4.0"/>
-            <test cmd="gen 2000000 1000000000 1" group="12" method="generated" points="4.0"/>
-            <test cmd="gen 2000000 1000000000 2" group="12" method="generated" points="4.0"/>
+            <test cmd="gen 5 8" group="0" method="manual" points="0.0" sample="true"/>
+            <test cmd="gen 10 10" group="1" method="manual" points="0.0"/>
+            <test cmd="gen 100 100" group="1" method="manual" points="0.0"/>
+            <test cmd="gen 1000 1000" group="1" method="manual" points="0.0"/>
+            <test cmd="gen 1000 1000 z" group="1" method="manual" points="10.0"/>
+            <test cmd="gen 10000 1000000000" group="2" method="manual" points="10.0"/>
+            <test cmd="gen 200000 1000000000 1" group="3" method="manual" points="4.0"/>
+            <test cmd="gen 200000 1000000000 2" group="3" method="manual" points="4.0"/>
+            <test cmd="gen 400000 1000000000 1" group="4" method="manual" points="4.0"/>
+            <test cmd="gen 400000 1000000000 2" group="4" method="manual" points="4.0"/>
+            <test cmd="gen 600000 1000000000 1" group="5" method="manual" points="4.0"/>
+            <test cmd="gen 600000 1000000000 2" group="5" method="manual" points="4.0"/>
+            <test cmd="gen 800000 1000000000 1" group="6" method="manual" points="4.0"/>
+            <test cmd="gen 800000 1000000000 2" group="6" method="manual" points="4.0"/>
+            <test cmd="gen 1000000 1000000000 1" group="7" method="manual" points="4.0"/>
+            <test cmd="gen 1000000 1000000000 2" group="7" method="manual" points="4.0"/>
+            <test cmd="gen 1200000 1000000000 1" group="8" method="manual" points="4.0"/>
+            <test cmd="gen 1200000 1000000000 2" group="8" method="manual" points="4.0"/>
+            <test cmd="gen 1400000 1000000000 1" group="9" method="manual" points="4.0"/>
+            <test cmd="gen 1400000 1000000000 2" group="9" method="manual" points="4.0"/>
+            <test cmd="gen 1600000 1000000000 1" group="10" method="manual" points="4.0"/>
+            <test cmd="gen 1600000 1000000000 2" group="10" method="manual" points="4.0"/>
+            <test cmd="gen 1800000 1000000000 1" group="11" method="manual" points="4.0"/>
+            <test cmd="gen 1800000 1000000000 2" group="11" method="manual" points="4.0"/>
+            <test cmd="gen 2000000 1000000000 1" group="12" method="manual" points="4.0"/>
+            <test cmd="gen 2000000 1000000000 2" group="12" method="manual" points="4.0"/>
         </tests>
         <groups>
             <group feedback-policy="complete" name="0" points-policy="each-test"/>

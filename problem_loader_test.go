@@ -331,4 +331,54 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			t.Errorf("Problem testing configuration do not match:\n want %v\n  got %v", want, got)
 		}
 	})
+
+	t.Run("import tests generator", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/11-tests-generator")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		tid := got.GetTestsets()[0].GetId()
+
+		want := &atlaspb.Snapshot{
+			Scripts: []*atlaspb.Script{
+				{Name: "gen", Runtime: "cpp:17-gnu10", SourceUrl: "https://eolympusercontent.com/file/gen.cpp"},
+				{Name: "solution", Runtime: "cpp:17-gnu10", SourceUrl: "https://eolympusercontent.com/file/main.cpp"},
+			},
+			Tests: []*atlaspb.Test{
+				{TestsetId: tid, Index: 0, Score: 0, Example: true, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"5", "10", "20"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 1, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "10", "100"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 2, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10000"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 3, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10001"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 4, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10002"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 5, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10003"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 6, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10004"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 7, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10005"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 8, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10006"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+				{TestsetId: tid, Index: 9, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10007"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+			},
+		}
+
+		// verify scripts
+		if len(got.GetScripts()) != len(want.GetScripts()) {
+			t.Fatalf("Number of scripts does not match: want %v, got %v", len(want.GetScripts()), len(got.GetScripts()))
+		}
+
+		for i := range want.GetScripts() {
+			if !reflect.DeepEqual(want.GetScripts()[i], got.GetScripts()[i]) {
+				t.Errorf("Problem scripts[%v] do not match:\n want %v\n  got %v", i, want.GetScripts()[i], got.GetScripts()[i])
+			}
+		}
+
+		// verify tests
+		if len(got.GetTests()) != len(want.GetTests()) {
+			t.Fatalf("Number of tests does not match: want %v, got %v", len(want.GetTests()), len(got.GetTests()))
+		}
+
+		for i := range want.GetTests() {
+			if !reflect.DeepEqual(want.GetTests()[i], got.GetTests()[i]) {
+				t.Errorf("Problem tests[%v] do not match:\n want %v\n  got %v", i, want.GetTests()[i], got.GetTests()[i])
+			}
+		}
+	})
 }
