@@ -762,27 +762,34 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			Score:     polytest.Points,
 		}
 
-		switch polytest.Method {
-		case "generated":
+		// make input
+		inPath := filepath.Join(path, fmt.Sprintf(polyset.InputPathPattern, index+1))
+		if polytest.Method == "generated" && !fileExists(inPath) {
 			command := strings.Split(polytest.Command, " ")
 			test.Input = &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: command[0], Arguments: command[1:]}}
-			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
-
-		default:
-			input, err := p.uploadObject(ctx, filepath.Join(path, fmt.Sprintf(polyset.InputPathPattern, index+1)))
-			if err != nil {
-				return nil, nil, err
-			}
-
-			answer, err := p.uploadObject(ctx, filepath.Join(path, fmt.Sprintf(polyset.AnswerPathPattern, index+1)))
+		} else {
+			input, err := p.uploadObject(ctx, inPath)
 			if err != nil {
 				return nil, nil, err
 			}
 
 			test.Input = &atlaspb.Test_InputObjectId{InputObjectId: input}
+		}
+
+		// make answer
+		anPath := filepath.Join(path, fmt.Sprintf(polyset.AnswerPathPattern, index+1))
+		if polytest.Method == "generated" && !fileExists(anPath) {
+			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
+		} else {
+			answer, err := p.uploadObject(ctx, inPath)
+			if err != nil {
+				return nil, nil, err
+			}
+
 			test.Answer = &atlaspb.Test_AnswerObjectId{AnswerObjectId: answer}
 		}
 
+		// add test to the list
 		tests = append(tests, test)
 		total += test.GetScore()
 	}

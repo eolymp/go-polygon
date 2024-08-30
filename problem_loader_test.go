@@ -332,6 +332,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 	})
 
+	// importing generated tests without actual files
 	t.Run("import tests generator", func(t *testing.T) {
 		got, err := loader.Snapshot(ctx, ".testdata/11-tests-generator")
 		if err != nil {
@@ -356,6 +357,50 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 				{TestsetId: tid, Index: 7, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10005"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
 				{TestsetId: tid, Index: 8, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10006"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
 				{TestsetId: tid, Index: 9, Score: 4, Example: false, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"10", "100", "10007"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
+			},
+		}
+
+		// verify scripts
+		if len(got.GetScripts()) != len(want.GetScripts()) {
+			t.Fatalf("Number of scripts does not match: want %v, got %v", len(want.GetScripts()), len(got.GetScripts()))
+		}
+
+		for i := range want.GetScripts() {
+			if !reflect.DeepEqual(want.GetScripts()[i], got.GetScripts()[i]) {
+				t.Errorf("Problem scripts[%v] do not match:\n want %v\n  got %v", i, want.GetScripts()[i], got.GetScripts()[i])
+			}
+		}
+
+		// verify tests
+		if len(got.GetTests()) != len(want.GetTests()) {
+			t.Fatalf("Number of tests does not match: want %v, got %v", len(want.GetTests()), len(got.GetTests()))
+		}
+
+		for i := range want.GetTests() {
+			if !reflect.DeepEqual(want.GetTests()[i], got.GetTests()[i]) {
+				t.Errorf("Problem tests[%v] do not match:\n want %v\n  got %v", i, want.GetTests()[i], got.GetTests()[i])
+			}
+		}
+	})
+
+	// importing generated tests with pre-generated files (ie. full windows package)
+	t.Run("import pre generated tests", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/12-tests-generator-pregenerated")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		tid := got.GetTestsets()[0].GetId()
+
+		want := &atlaspb.Snapshot{
+			Scripts: []*atlaspb.Script{
+				{Name: "gen", Runtime: "cpp:17-gnu10", Source: "#include \"testlib.h\"\n#include <iostream>\nusing ll = long long;\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    cout << 12 << '\\n';\n    return 0;\n}\n"},
+				{Name: "solution", Runtime: "cpp:17-gnu10", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
+			},
+			Tests: []*atlaspb.Test{
+				{TestsetId: tid, Index: 0, Score: 0, Example: true, Input: &atlaspb.Test_InputObjectId{InputObjectId: "mocked-object-id"}, Answer: &atlaspb.Test_AnswerObjectId{AnswerObjectId: "mocked-object-id"}},
+				{TestsetId: tid, Index: 1, Score: 4, Example: false, Input: &atlaspb.Test_InputObjectId{InputObjectId: "mocked-object-id"}, Answer: &atlaspb.Test_AnswerObjectId{AnswerObjectId: "mocked-object-id"}},
+				{TestsetId: tid, Index: 2, Score: 4, Example: false, Input: &atlaspb.Test_InputObjectId{InputObjectId: "mocked-object-id"}, Answer: &atlaspb.Test_AnswerObjectId{AnswerObjectId: "mocked-object-id"}},
 			},
 		}
 
