@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.5
 
 require (
-	github.com/eolymp/go-sdk v0.0.0-20240827072122-829ca20dc7fe
+	github.com/eolymp/go-sdk v0.0.0-20240830094852-fa5315a92b88
 	github.com/google/uuid v1.6.0
 	google.golang.org/grpc v1.65.0
 )

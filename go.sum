@@ -1,7 +1,5 @@
-github.com/eolymp/go-sdk v0.0.0-20240826095059-d1d055931515 h1:BPcwPe6SY7NUI5CEt0BBXfqGEwRT6el4uPts08ZaIB8=
-github.com/eolymp/go-sdk v0.0.0-20240826095059-d1d055931515/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
-github.com/eolymp/go-sdk v0.0.0-20240827072122-829ca20dc7fe h1:/29xS1RzzMgTAl8x37fa8Q/Oo4UFqXDOxVtsb/uwPYY=
-github.com/eolymp/go-sdk v0.0.0-20240827072122-829ca20dc7fe/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
+github.com/eolymp/go-sdk v0.0.0-20240830094852-fa5315a92b88 h1:IJUjd9rpvepYzAniwp7Xb2DFP9NTn/v6ofGDDrU++NE=
+github.com/eolymp/go-sdk v0.0.0-20240830094852-fa5315a92b88/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=

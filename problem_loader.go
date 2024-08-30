@@ -574,15 +574,10 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 			return nil, fmt.Errorf("unable to read script source %#v: %w", script.Source.Path, err)
 		}
 
-		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: filepath.Base(script.Source.Path), Type: "text/plain", Data: data})
-		if err != nil {
-			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
-		}
-
 		scripts = append(scripts, &atlaspb.Script{
-			Name:      strings.TrimSuffix(filepath.Base(script.Source.Path), filepath.Ext(script.Source.Path)),
-			Runtime:   runtime,
-			SourceUrl: asset.GetFileUrl(),
+			Name:    strings.TrimSuffix(filepath.Base(script.Source.Path), filepath.Ext(script.Source.Path)),
+			Runtime: runtime,
+			Source:  string(data),
 		})
 	}
 
@@ -601,15 +596,10 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 			return nil, fmt.Errorf("unable to read solution script source %#v: %w", solution.Source.Path, err)
 		}
 
-		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: filepath.Base(solution.Source.Path), Type: "text/plain", Data: data})
-		if err != nil {
-			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
-		}
-
 		scripts = append(scripts, &atlaspb.Script{
-			Name:      "solution",
-			Runtime:   runtime,
-			SourceUrl: asset.GetFileUrl(),
+			Name:    "solution",
+			Runtime: runtime,
+			Source:  string(data),
 		})
 	}
 

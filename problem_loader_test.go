@@ -342,8 +342,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		want := &atlaspb.Snapshot{
 			Scripts: []*atlaspb.Script{
-				{Name: "gen", Runtime: "cpp:17-gnu10", SourceUrl: "https://eolympusercontent.com/file/gen.cpp"},
-				{Name: "solution", Runtime: "cpp:17-gnu10", SourceUrl: "https://eolympusercontent.com/file/main.cpp"},
+				{Name: "gen", Runtime: "cpp:17-gnu10", Source: "#include \"testlib.h\"\n#include <iostream>\nusing ll = long long;\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    cout << 12 << '\\n';\n    return 0;\n}\n"},
+				{Name: "solution", Runtime: "cpp:17-gnu10", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
 			},
 			Tests: []*atlaspb.Test{
 				{TestsetId: tid, Index: 0, Score: 0, Example: true, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"5", "10", "20"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
