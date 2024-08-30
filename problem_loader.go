@@ -788,7 +788,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		if polytest.Method == "generated" && !fileExists(anPath) {
 			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
 		} else {
-			answer, err := p.uploadObject(ctx, inPath)
+			answer, err := p.uploadObject(ctx, anPath)
 			if err != nil {
 				return nil, nil, err
 			}
