@@ -2,21 +2,21 @@ package polygon
 
 import (
 	"context"
-	keeperpb "github.com/eolymp/go-sdk/eolymp/keeper"
+	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
 	"google.golang.org/grpc"
 )
 
 type blobMock struct {
 }
 
-func (blobMock) StartMultipartUpload(ctx context.Context, in *keeperpb.StartMultipartUploadInput, opts ...grpc.CallOption) (*keeperpb.StartMultipartUploadOutput, error) {
-	return &keeperpb.StartMultipartUploadOutput{ObjectId: "mocked-object-id"}, nil
+func (blobMock) StartMultipartUpload(ctx context.Context, in *assetpb.StartMultipartUploadInput, opts ...grpc.CallOption) (*assetpb.StartMultipartUploadOutput, error) {
+	return &assetpb.StartMultipartUploadOutput{UploadId: in.GetName()}, nil
 }
 
-func (blobMock) UploadPart(ctx context.Context, in *keeperpb.UploadPartInput, opts ...grpc.CallOption) (*keeperpb.UploadPartOutput, error) {
-	return &keeperpb.UploadPartOutput{}, nil
+func (blobMock) UploadPart(ctx context.Context, in *assetpb.UploadPartInput, opts ...grpc.CallOption) (*assetpb.UploadPartOutput, error) {
+	return &assetpb.UploadPartOutput{}, nil
 }
 
-func (blobMock) CompleteMultipartUpload(ctx context.Context, in *keeperpb.CompleteMultipartUploadInput, opts ...grpc.CallOption) (*keeperpb.CompleteMultipartUploadOutput, error) {
-	return &keeperpb.CompleteMultipartUploadOutput{}, nil
+func (blobMock) CompleteMultipartUpload(ctx context.Context, in *assetpb.CompleteMultipartUploadInput, opts ...grpc.CallOption) (*assetpb.CompleteMultipartUploadOutput, error) {
+	return &assetpb.CompleteMultipartUploadOutput{AssetUrl: in.GetUploadId()}, nil
 }

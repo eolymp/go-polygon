@@ -11,7 +11,6 @@ import (
 	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
 	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
 	executorpb "github.com/eolymp/go-sdk/eolymp/executor"
-	keeperpb "github.com/eolymp/go-sdk/eolymp/keeper"
 	"github.com/google/uuid"
 	"io"
 	"math"
@@ -770,30 +769,30 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		}
 
 		// make input
-		inPath := filepath.Join(path, fmt.Sprintf(polyset.InputPathPattern, index+1))
-		if polytest.Method == "generated" && !fileExists(inPath) {
+		input := filepath.Join(path, fmt.Sprintf(polyset.InputPathPattern, index+1))
+		if polytest.Method == "generated" && !fileExists(input) {
 			command := strings.Split(polytest.Command, " ")
 			test.Input = &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: command[0], Arguments: command[1:]}}
 		} else {
-			input, err := p.uploadObject(ctx, inPath)
+			link, err := p.uploadObject(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
 
-			test.Input = &atlaspb.Test_InputObjectId{InputObjectId: input}
+			test.Input = &atlaspb.Test_InputUrl{InputUrl: link}
 		}
 
 		// make answer
-		anPath := filepath.Join(path, fmt.Sprintf(polyset.AnswerPathPattern, index+1))
-		if polytest.Method == "generated" && !fileExists(anPath) {
+		answer := filepath.Join(path, fmt.Sprintf(polyset.AnswerPathPattern, index+1))
+		if polytest.Method == "generated" && !fileExists(answer) {
 			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
 		} else {
-			answer, err := p.uploadObject(ctx, anPath)
+			link, err := p.uploadObject(ctx, answer)
 			if err != nil {
 				return nil, nil, err
 			}
 
-			test.Answer = &atlaspb.Test_AnswerObjectId{AnswerObjectId: answer}
+			test.Answer = &atlaspb.Test_AnswerUrl{AnswerUrl: link}
 		}
 
 		// add test to the list
@@ -926,12 +925,16 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 
 	defer reader.Close()
 
-	upload, err := p.blobs.StartMultipartUpload(ctx, &keeperpb.StartMultipartUploadInput{})
+	upload, err := p.blobs.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{
+		Name: filepath.Base(path),
+		Type: "text/plain",
+	})
+
 	if err != nil {
 		return "", err
 	}
 
-	var parts []*keeperpb.CompleteMultipartUploadInput_Part
+	var parts []*assetpb.CompleteMultipartUploadInput_Part
 
 	chunk := make([]byte, objectChunkSize)
 
@@ -945,8 +948,7 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 			return "", err
 		}
 
-		part, err := p.blobs.UploadPart(ctx, &keeperpb.UploadPartInput{
-			ObjectId:   upload.GetObjectId(),
+		part, err := p.blobs.UploadPart(ctx, &assetpb.UploadPartInput{
 			UploadId:   upload.GetUploadId(),
 			PartNumber: uint32(index),
 			Data:       chunk[0:size],
@@ -956,9 +958,9 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 			return "", err
 		}
 
-		parts = append(parts, &keeperpb.CompleteMultipartUploadInput_Part{
+		parts = append(parts, &assetpb.CompleteMultipartUploadInput_Part{
 			Number: uint32(index),
-			Etag:   part.GetEtag(),
+			Token:  part.GetToken(),
 		})
 	}
 
@@ -966,8 +968,7 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 		return "", nil
 	}
 
-	_, err = p.blobs.CompleteMultipartUpload(ctx, &keeperpb.CompleteMultipartUploadInput{
-		ObjectId: upload.GetObjectId(),
+	out, err := p.blobs.CompleteMultipartUpload(ctx, &assetpb.CompleteMultipartUploadInput{
 		UploadId: upload.GetUploadId(),
 		Parts:    parts,
 	})
@@ -976,5 +977,5 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 		return "", err
 	}
 
-	return upload.GetObjectId(), nil
+	return out.GetAssetUrl(), nil
 }
