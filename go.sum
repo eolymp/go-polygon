@@ -1,3 +1,5 @@
+github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f h1:NNJE6p4LchkmNfNskDUaSbrwxZzr7t2/lj2aS+q4oF0=
+github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f/go.mod h1:k8feO4+kXDxro6ErPXBRTJ/ro2mf0SsFG8s7doP9kJE=
 github.com/eolymp/go-sdk v0.0.0-20240830094852-fa5315a92b88 h1:IJUjd9rpvepYzAniwp7Xb2DFP9NTn/v6ofGDDrU++NE=
 github.com/eolymp/go-sdk v0.0.0-20240830094852-fa5315a92b88/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
 github.com/eolymp/go-sdk v0.0.0-20240902095411-1def081e397e h1:b1QkXG86yVFh1/CYONamMOm+U6+y4M0vY3D237L9XYY=

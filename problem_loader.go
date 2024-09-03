@@ -7,6 +7,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/andybalholm/crlf"
 	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
 	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
 	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
@@ -936,12 +937,14 @@ func (p *ProblemLoader) mapGroupToIndex(testset SpecificationTestset) map[string
 
 // uploadObject to eolymp's blob storage, used to upload test data
 func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, error) {
-	reader, err := os.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return "", err
 	}
 
-	defer reader.Close()
+	defer file.Close()
+
+	reader := crlf.NewReader(file)
 
 	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{
 		Name: filepath.Base(path),
