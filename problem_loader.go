@@ -12,6 +12,7 @@ import (
 	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
 	executorpb "github.com/eolymp/go-sdk/eolymp/executor"
 	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"math"
 	"mime"
@@ -751,6 +752,12 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		testsets = append(testsets, testset)
 	}
 
+	// create a group to upload tests in parallel
+	eg, ctx := errgroup.WithContext(ctx)
+
+	// limit number of parallel uploads
+	eg.SetLimit(5)
+
 	// read tests
 	var total float32
 	for index, polytest := range polyset.Tests {
@@ -772,12 +779,16 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			command := strings.Split(polytest.Command, " ")
 			test.Input = &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: command[0], Arguments: command[1:]}}
 		} else {
-			link, err := p.uploadObject(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
+			eg.Go(func() error {
+				link, err := p.uploadObject(ctx, input)
+				if err != nil {
+					return err
+				}
 
-			test.Input = &atlaspb.Test_InputUrl{InputUrl: link}
+				test.Input = &atlaspb.Test_InputUrl{InputUrl: link}
+
+				return nil
+			})
 		}
 
 		// make answer
@@ -785,12 +796,16 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		if !fileExists(answer) {
 			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
 		} else {
-			link, err := p.uploadObject(ctx, answer)
-			if err != nil {
-				return nil, nil, err
-			}
+			eg.Go(func() error {
+				link, err := p.uploadObject(ctx, answer)
+				if err != nil {
+					return err
+				}
 
-			test.Answer = &atlaspb.Test_AnswerUrl{AnswerUrl: link}
+				test.Answer = &atlaspb.Test_AnswerUrl{AnswerUrl: link}
+
+				return nil
+			})
 		}
 
 		// add test to the list
@@ -805,6 +820,10 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			test.Score = float32(math.Min(math.Floor(credit/float64(len(tests)-i)), credit))
 			credit -= float64(test.Score)
 		}
+	}
+
+	if err := eg.Wait(); err != nil {
+		return nil, nil, err
 	}
 
 	return
