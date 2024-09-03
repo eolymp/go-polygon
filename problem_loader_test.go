@@ -396,9 +396,9 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 				{Name: "solution", Runtime: "cpp:17-gnu10", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
 			},
 			Tests: []*atlaspb.Test{
-				{TestsetId: tid, Index: 0, Score: 0, Example: true, Input: &atlaspb.Test_InputUrl{InputUrl: "01"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "01.a"}},
-				{TestsetId: tid, Index: 1, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "02"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "02.a"}},
-				{TestsetId: tid, Index: 2, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "03"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "03.a"}},
+				{TestsetId: tid, Index: 0, Score: 0, Example: true, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/01"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/01.a"}},
+				{TestsetId: tid, Index: 1, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/02"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/02.a"}},
+				{TestsetId: tid, Index: 2, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/03"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/03.a"}},
 			},
 		}
 

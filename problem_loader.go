@@ -958,12 +958,30 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 
 	defer file.Close()
 
-	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{
-		Name:    filepath.Base(path),
-		Type:    "text/plain",
-		Aliases: []string{alias},
-	})
+	stat, err := file.Stat()
+	if err != nil {
+		return "", err
+	}
 
+	reader := crlf.NewReader(file)
+
+	// anything smaller than 5MB is uploaded as a single request
+	if stat.Size() <= objectChunkSize {
+		data, err := io.ReadAll(reader)
+		if err != nil {
+			return "", err
+		}
+
+		asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: filepath.Base(path), Type: "text/plain", Data: data, Aliases: []string{alias}})
+		if err != nil {
+			return "", err
+		}
+
+		return asset.GetAssetUrl(), nil
+	}
+
+	// upload larger files in chunks
+	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{Name: filepath.Base(path), Type: "text/plain", Aliases: []string{alias}})
 	if err != nil {
 		return "", err
 	}
@@ -971,7 +989,6 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 	var parts []*assetpb.CompleteMultipartUploadInput_Part
 
 	chunk := make([]byte, objectChunkSize)
-	reader := crlf.NewReader(file)
 
 	for index := 1; ; index++ {
 		size, err := reader.Read(chunk)

@@ -4,9 +4,15 @@ import (
 	"context"
 	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type assetMock struct {
+}
+
+func (assetMock) ResolveAlias(ctx context.Context, in *assetpb.ResolveAliasInput, opts ...grpc.CallOption) (*assetpb.ResolveAliasOutput, error) {
+	return nil, status.Error(codes.NotFound, "not found")
 }
 
 func (assetMock) UploadAsset(ctx context.Context, in *assetpb.UploadAssetInput, opts ...grpc.CallOption) (*assetpb.UploadAssetOutput, error) {
