@@ -3,6 +3,7 @@ package polygon
 import (
 	"archive/zip"
 	"context"
+	"crypto/sha1"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
@@ -781,7 +782,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			test.Input = &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: command[0], Arguments: command[1:]}}
 		} else {
 			eg.Go(func() error {
-				link, err := p.uploadObject(ctx, input)
+				link, err := p.uploadFile(ctx, input)
 				if err != nil {
 					return err
 				}
@@ -798,7 +799,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
 		} else {
 			eg.Go(func() error {
-				link, err := p.uploadObject(ctx, answer)
+				link, err := p.uploadFile(ctx, answer)
 				if err != nil {
 					return err
 				}
@@ -935,8 +936,21 @@ func (p *ProblemLoader) mapGroupToIndex(testset SpecificationTestset) map[string
 	return mapping
 }
 
-// uploadObject to eolymp's blob storage, used to upload test data
-func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, error) {
+// uploadFile to eolymp's blob storage, used to upload test data
+func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, error) {
+	hash, err := p.hashFile(path)
+	if err != nil {
+		return "", err
+	}
+
+	alias := "sha1:" + hash
+
+	// check if file is already uploaded
+	if out, err := p.assets.ResolveAlias(ctx, &assetpb.ResolveAliasInput{Alias: alias}); err == nil {
+		return out.GetAssetUrl(), nil
+	}
+
+	// upload file
 	file, err := os.Open(path)
 	if err != nil {
 		return "", err
@@ -944,11 +958,10 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 
 	defer file.Close()
 
-	reader := crlf.NewReader(file)
-
 	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{
-		Name: filepath.Base(path),
-		Type: "text/plain",
+		Name:    filepath.Base(path),
+		Type:    "text/plain",
+		Aliases: []string{alias},
 	})
 
 	if err != nil {
@@ -958,6 +971,7 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 	var parts []*assetpb.CompleteMultipartUploadInput_Part
 
 	chunk := make([]byte, objectChunkSize)
+	reader := crlf.NewReader(file)
 
 	for index := 1; ; index++ {
 		size, err := reader.Read(chunk)
@@ -999,4 +1013,21 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 	}
 
 	return out.GetAssetUrl(), nil
+}
+
+func (p *ProblemLoader) hashFile(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	hash := sha1.New()
+
+	if _, err := io.Copy(hash, crlf.NewReader(file)); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
