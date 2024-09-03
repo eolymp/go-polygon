@@ -31,14 +31,12 @@ var imageFinder = regexp.MustCompile("(\\\\includegraphics.*?{)(.+?)(})")
 
 type ProblemLoader struct {
 	assets assetUploader
-	blobs  blobUploader
 	log    logger
 }
 
-func NewProblemLoader(assets assetUploader, blobs blobUploader, log logger) *ProblemLoader {
+func NewProblemLoader(assets assetUploader, log logger) *ProblemLoader {
 	return &ProblemLoader{
 		assets: assets,
-		blobs:  blobs,
 		log:    log,
 	}
 }
@@ -658,12 +656,12 @@ func (p *ProblemLoader) attachments(ctx context.Context, path string, spec *Spec
 
 		name := filepath.Base(material.Path)
 
-		asset, err := p.assets.UploadFile(ctx, &assetpb.UploadFileInput{Name: name, Data: data})
+		asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: name, Data: data})
 		if err != nil {
 			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
 		}
 
-		attachments = append(attachments, &atlaspb.Attachment{Name: name, Link: asset.GetFileUrl()})
+		attachments = append(attachments, &atlaspb.Attachment{Name: name, Link: asset.GetAssetUrl()})
 	}
 
 	return
@@ -838,14 +836,15 @@ func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text st
 			continue
 		}
 
-		asset, err := p.assets.UploadImage(ctx, &assetpb.UploadImageInput{Name: name, Data: data})
+		asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: name, Data: data})
 		if err != nil {
 			p.log.Warning("unable to upload image", map[string]any{"error": err.Error()})
 			continue
 		}
 
-		text = strings.Replace(text, full, prefix+asset.GetImageUrl()+suffix, -1)
+		text = strings.Replace(text, full, prefix+asset.GetAssetUrl()+suffix, -1)
 	}
+
 	return text
 }
 
@@ -925,7 +924,7 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 
 	defer reader.Close()
 
-	upload, err := p.blobs.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{
+	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{
 		Name: filepath.Base(path),
 		Type: "text/plain",
 	})
@@ -948,7 +947,7 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 			return "", err
 		}
 
-		part, err := p.blobs.UploadPart(ctx, &assetpb.UploadPartInput{
+		part, err := p.assets.UploadPart(ctx, &assetpb.UploadPartInput{
 			UploadId:   upload.GetUploadId(),
 			PartNumber: uint32(index),
 			Data:       chunk[0:size],
@@ -968,7 +967,7 @@ func (p *ProblemLoader) uploadObject(ctx context.Context, path string) (string, 
 		return "", nil
 	}
 
-	out, err := p.blobs.CompleteMultipartUpload(ctx, &assetpb.CompleteMultipartUploadInput{
+	out, err := p.assets.CompleteMultipartUpload(ctx, &assetpb.CompleteMultipartUploadInput{
 		UploadId: upload.GetUploadId(),
 		Parts:    parts,
 	})

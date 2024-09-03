@@ -20,7 +20,6 @@ func TestProblemLoader_FetchViaID(t *testing.T) {
 
 	loader := NewProblemLoader(
 		&assetMock{},
-		&blobMock{},
 		&loggerMock{t: t},
 	)
 
@@ -48,7 +47,6 @@ func TestProblemLoader_FetchViaLink(t *testing.T) {
 
 	loader := NewProblemLoader(
 		&assetMock{},
-		&blobMock{},
 		&loggerMock{t: t},
 	)
 
@@ -69,7 +67,7 @@ func TestProblemLoader_FetchViaLink(t *testing.T) {
 
 func TestProblemLoader_Snapshot(t *testing.T) {
 	ctx := context.Background()
-	loader := NewProblemLoader(&assetMock{}, &blobMock{}, &loggerMock{t: t})
+	loader := NewProblemLoader(&assetMock{}, &loggerMock{t: t})
 
 	t.Run("import topics", func(t *testing.T) {
 		snap, err := loader.Snapshot(ctx, ".testdata/01-topics")
@@ -247,7 +245,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		want := []*atlaspb.Statement{{
 			Locale:  "uk",
 			Title:   "Сума масиву",
-			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "Дано $n$ цілих чисел $a_1, a_2, \\ldots, a_n$. Знайдіть їхню суму. \\includegraphics[width=12cm]{https://eolympusercontent.com/image.png} \\includegraphics{https://eolympusercontent.com/image2.png} \n\n\\InputFile\n\nПерший рядок містить ціле число $n$ ($1 \\leq n \\leq 2 \\cdot 10^6$)~--- кількість чисел.\r\n\r\nДругий рядок містить $n$ цілих чисел $a_1, a_2, \\ldots, a_n$ ($0 \\leq a_i \\leq 10^9$)~--- числа масиву.\n\n\\OutputFile\n\nВиведіть одне число~--- суму масиву.\n\n\\Scoring\n\n\\begin{enumerate}\r\n\\item ($10$ балів): $n \\leq 1\\,000$, $a_i \\leq 1\\,000$;\r\n\\item ($10$ балів): $n \\leq 10\\,000$;\r\n\\item ($8$ балів): $n \\leq 200\\,000$;\r\n\\item ($8$ балів): $n \\leq 400\\,000$;\r\n\\item ($8$ балів): $n \\leq 600\\,000$;\r\n\\item ($8$ балів): $n \\leq 800\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,000\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,200\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,400\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,600\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,800\\,000$;\r\n\\item ($8$ балів): повні обмеження.\r\n\\end{enumerate}\r\n"}},
+			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "Дано $n$ цілих чисел $a_1, a_2, \\ldots, a_n$. Знайдіть їхню суму. \\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png} \\includegraphics{https://eolympusercontent.com/file/image2.png} \n\n\\InputFile\n\nПерший рядок містить ціле число $n$ ($1 \\leq n \\leq 2 \\cdot 10^6$)~--- кількість чисел.\r\n\r\nДругий рядок містить $n$ цілих чисел $a_1, a_2, \\ldots, a_n$ ($0 \\leq a_i \\leq 10^9$)~--- числа масиву.\n\n\\OutputFile\n\nВиведіть одне число~--- суму масиву.\n\n\\Scoring\n\n\\begin{enumerate}\r\n\\item ($10$ балів): $n \\leq 1\\,000$, $a_i \\leq 1\\,000$;\r\n\\item ($10$ балів): $n \\leq 10\\,000$;\r\n\\item ($8$ балів): $n \\leq 200\\,000$;\r\n\\item ($8$ балів): $n \\leq 400\\,000$;\r\n\\item ($8$ балів): $n \\leq 600\\,000$;\r\n\\item ($8$ балів): $n \\leq 800\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,000\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,200\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,400\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,600\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,800\\,000$;\r\n\\item ($8$ балів): повні обмеження.\r\n\\end{enumerate}\r\n"}},
 			Author:  "Anton Tsypko",
 		}}
 
@@ -297,8 +295,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		got := snap.GetEditorials()
 		want := []*atlaspb.Editorial{
-			{Locale: "en", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{English}\r\nEnglish Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/image.png} \\includegraphics{https://eolympusercontent.com/image2.png}\r\n\\end{tutorial}\r\n"}}},
-			{Locale: "uk", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{Ukrainian}\r\nUkrainian Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/image.png}\r\n\\includegraphics{https://eolympusercontent.com/image2.png}\r\n\\end{tutorial}\r\n"}}},
+			{Locale: "en", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{English}\r\nEnglish Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png} \\includegraphics{https://eolympusercontent.com/file/image2.png}\r\n\\end{tutorial}\r\n"}}},
+			{Locale: "uk", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{Ukrainian}\r\nUkrainian Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png}\r\n\\includegraphics{https://eolympusercontent.com/file/image2.png}\r\n\\end{tutorial}\r\n"}}},
 		}
 
 		if len(got) != len(want) {
