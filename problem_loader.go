@@ -782,7 +782,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 
 		// make answer
 		answer := filepath.Join(path, fmt.Sprintf(polyset.AnswerPathPattern, index+1))
-		if polytest.Method == "generated" && !fileExists(answer) {
+		if !fileExists(answer) {
 			test.Answer = &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}
 		} else {
 			link, err := p.uploadObject(ctx, answer)
