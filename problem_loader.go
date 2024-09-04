@@ -26,6 +26,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const objectChunkSize = 5242880
@@ -62,14 +63,24 @@ func (p *ProblemLoader) Fetch(ctx context.Context, link string) (*atlaspb.Snapsh
 
 	defer p.cleanup(path)
 
+	start := time.Now()
+
+	p.log.Printf("Downloading problem archive")
+
 	// download and unpack
 	if err := p.download(ctx, path, link); err != nil {
 		return nil, fmt.Errorf("unable to download problem archive: %w", err)
 	}
 
+	p.log.Printf("Downloaded in %#v", time.Since(start))
+
+	start = time.Now()
+
 	if err := p.unpack(ctx, path); err != nil {
 		return nil, fmt.Errorf("unable to unpack problem archive: %w", err)
 	}
+
+	p.log.Printf("Unpacked in %#v", time.Since(start))
 
 	return p.Snapshot(ctx, path)
 }
@@ -87,6 +98,8 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 	if err := xml.NewDecoder(file).Decode(spec); err != nil {
 		return nil, fmt.Errorf("unable to decode problem.xml: %w", err)
 	}
+
+	p.log.Printf("package.xml succesfully parsed")
 
 	// import...
 	checker, err := p.checker(ctx, path, spec)
@@ -355,28 +368,35 @@ func (p *ProblemLoader) unpack(ctx context.Context, path string) error {
 // cleanup after import
 func (p *ProblemLoader) cleanup(path string) {
 	if err := os.RemoveAll(path); err != nil {
-		p.log.Warning("Unable to cleanup workspace path", map[string]any{"error": err, "path": path})
+		p.log.Errorf("Unable to cleanup workspace path: %v", err)
 	}
 }
 
 func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specification) (*executorpb.Checker, error) {
 	switch spec.Checker.Name {
 	case "std::ncmp.cpp": // Single or more int64, ignores whitespaces
+		p.log.Printf("Adding checker std::ncmp.cpp as tokens with precision=0 and case-sensitive=true")
 		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: true}, nil
 	case "std::rcmp4.cpp": // Single or more double, max any error 1E-4
+		p.log.Printf("Adding checker std::rcmp4.cpp as tokens with precision=4 and case-sensitive=true")
 		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 4, CaseSensitive: true}, nil
 	case "std::rcmp6.cpp": // Single or more double, max any error 1E-6
+		p.log.Printf("Adding checker std::rcmp6.cpp as tokens with precision=6 and case-sensitive=true")
 		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 6, CaseSensitive: true}, nil
 	case "std::rcmp9.cpp": // Single or more double, max any error 1E-9
+		p.log.Printf("Adding checker std::rcmp9.cpp as tokens with precision=9 and case-sensitive=true")
 		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 9, CaseSensitive: true}, nil
 	case "std::wcmp.cpp": // Sequence of tokens
+		p.log.Printf("Adding checker std::wcmp.cpp as tokens with precision=0 and case-sensitive=false")
 		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: true}, nil
 	case "std::nyesno.cpp", // Zero or more yes/no, case-insensitive
 		"std::yesno.cpp": // Single yes or no, case-insensitive
+		p.log.Printf("Adding checker std::yesno.cpp as tokens with precision=0 and case-sensitive=false")
 		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: false}, nil
 	case "std::fcmp.cpp", // Lines, doesn't ignore whitespaces
 		"std::hcmp.cpp", // Single huge integer
 		"std::lcmp.cpp": // Lines, ignores whitespaces
+		p.log.Printf("Adding checker std::lcmp.cpp as lines")
 		return &executorpb.Checker{Type: executorpb.Checker_LINES}, nil
 	default:
 		for lang, types := range runtimeMapping {
@@ -389,6 +409,8 @@ func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specific
 			if err != nil {
 				return nil, err
 			}
+
+			p.log.Printf("Adding program checker in %v", lang)
 
 			return &executorpb.Checker{Type: executorpb.Checker_PROGRAM, Lang: lang, Source: string(data)}, nil
 		}
@@ -413,6 +435,8 @@ func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Speci
 			return nil, err
 		}
 
+		p.log.Printf("Adding interactor in %v", lang)
+
 		return &executorpb.Interactor{Type: executorpb.Interactor_PROGRAM, Lang: lang, Source: string(data)}, nil
 	}
 
@@ -422,23 +446,27 @@ func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Speci
 func (p *ProblemLoader) statements(ctx context.Context, path string, spec *Specification) (statements []*atlaspb.Statement, err error) {
 	for _, statement := range spec.Statements {
 		if statement.Type != "application/x-tex" {
+			p.log.Printf("Skipping statement %#v because it has unsupported format %#v", statement.Path, statement.Type)
 			continue
 		}
 
 		locale, err := LocaleFromLanguage(statement.Language)
 		if err != nil {
+			p.log.Printf("Skipping statement %#v because it has unsupported language: %v", statement.Path, err)
 			continue
 		}
 
 		data, err := os.ReadFile(filepath.Join(path, filepath.Dir(statement.Path), "problem-properties.json"))
 		if err != nil {
-			return nil, fmt.Errorf("unable to read problem-properties.json: %w", err)
+			p.log.Errorf("Unable to read statement %#v: %v", statement.Path, err)
+			continue
 		}
 
 		props := ProblemProperties{}
 
 		if err := json.Unmarshal(data, &props); err != nil {
-			return nil, fmt.Errorf("unable to unmrashal problem-properties.json: %w", err)
+			p.log.Errorf("Unable to read problem-properties.json for statement %#v: %v", statement.Path, err)
+			continue
 		}
 
 		parts := []string{props.Legend}
@@ -500,17 +528,20 @@ func (p *ProblemLoader) statements(ctx context.Context, path string, spec *Speci
 func (p *ProblemLoader) editorials(ctx context.Context, path string, spec *Specification) (editorials []*atlaspb.Editorial, err error) {
 	for _, tutorial := range spec.Tutorials {
 		if tutorial.Type != "application/x-tex" {
+			p.log.Printf("Skipping tutorial %#v because it has unsupported format %#v", tutorial.Path, tutorial.Type)
 			continue
 		}
 
 		locale, err := LocaleFromLanguage(tutorial.Language)
 		if err != nil {
+			p.log.Printf("Skipping tutorial %#v because it has unsupported language: %v", tutorial.Path, err)
 			continue
 		}
 
 		data, err := os.ReadFile(filepath.Join(path, tutorial.Path))
 		if err != nil {
-			return nil, fmt.Errorf("unable to read problem-properties.json: %w", err)
+			p.log.Errorf("Unable to read tutorial %#v: %v", tutorial.Path, err)
+			continue
 		}
 
 		latex := p.uploadImagesFromLatex(ctx, filepath.Join(path, filepath.Dir(tutorial.Path)), string(data))
@@ -528,6 +559,7 @@ func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specif
 	for _, solution := range spec.Solutions {
 		runtime, ok := SourceTypeToRuntime(solution.Source.Type)
 		if !ok {
+			p.log.Errorf("Skipping solution %#v because runtime %#v is not mapped", solution.Source.Path, solution.Source.Type)
 			continue
 		}
 
@@ -550,12 +582,14 @@ func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specif
 		case "time-limit-exceeded-or-memory-limit-exceeded", "presentation-error":
 			kind = atlaspb.Solution_DONT_RUN
 		default:
+			p.log.Errorf("Skipping solution %#v because tag %#v is not mapped", solution.Source.Path, solution.Tag)
 			continue
 		}
 
 		data, err := os.ReadFile(filepath.Join(path, solution.Source.Path))
 		if err != nil {
-			return nil, fmt.Errorf("unable to read solution source %#v: %w", solution.Source.Path, err)
+			p.log.Errorf("Unable to read solution file %#v: %v", solution.Source.Path, err)
+			continue
 		}
 
 		solutions = append(solutions, &atlaspb.Solution{
@@ -573,12 +607,14 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 	for _, script := range spec.Templates {
 		runtime, ok := SourceTypeToRuntime(script.Source.Type)
 		if !ok {
+			p.log.Errorf("Skipping script %#v because runtime %#v is not mapped", script.Source.Path, script.Source.Type)
 			continue
 		}
 
 		data, err := os.ReadFile(filepath.Join(path, script.Source.Path))
 		if err != nil {
-			return nil, fmt.Errorf("unable to read script source %#v: %w", script.Source.Path, err)
+			p.log.Errorf("Unable to read script file %#v: %v", script.Source.Path, err)
+			continue
 		}
 
 		scripts = append(scripts, &atlaspb.Script{
@@ -595,12 +631,14 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 
 		runtime, ok := SourceTypeToRuntime(solution.Source.Type)
 		if !ok {
+			p.log.Errorf("Unable to create solution script because runtime %#v is not mapped", solution.Source.Type)
 			continue
 		}
 
 		data, err := os.ReadFile(filepath.Join(path, solution.Source.Path))
 		if err != nil {
-			return nil, fmt.Errorf("unable to read solution script source %#v: %w", solution.Source.Path, err)
+			p.log.Errorf("Unable to read solution script: %v", err)
+			continue
 		}
 
 		scripts = append(scripts, &atlaspb.Script{
@@ -654,14 +692,16 @@ func (p *ProblemLoader) attachments(ctx context.Context, path string, spec *Spec
 
 		data, err := os.ReadFile(filepath.Join(path, material.Path))
 		if err != nil {
-			return nil, fmt.Errorf("unable to read attachment (material): %w", err)
+			p.log.Errorf("Unable to read material %#v: %v", material.Path, err)
+			continue
 		}
 
 		name := filepath.Base(material.Path)
 
 		asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: name, Data: data})
 		if err != nil {
-			return nil, fmt.Errorf("unable to upload attachment (material): %w", err)
+			p.log.Errorf("Unable to upload material %#v: %v", material.Path, err)
+			continue
 		}
 
 		attachments = append(attachments, &atlaspb.Attachment{Name: name, Link: asset.GetAssetUrl()})
@@ -679,6 +719,8 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	// pick testset called "tests" or first one
 	polyset := p.pickTestset(spec)
 
+	p.log.Printf("Importing testset %#v", polyset.Name)
+
 	// eolymp specific overrides
 	blockMin := false
 	timeLimit := polyset.TimeLimit
@@ -687,14 +729,21 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	for _, tag := range spec.Tags {
 		switch {
 		case tag.Value == "block_min" || tag.Value == "min_block":
+			p.log.Printf("Found block_min tag, switch to min scoring")
 			blockMin = true
 		case strings.HasPrefix(tag.Value, "eolymp_tl="):
-			if val, err := strconv.Atoi(tag.Value[10:]); err == nil {
+			if val, err := strconv.Atoi(tag.Value[10:]); err != nil {
+				p.log.Errorf("Found eolymp_tl tag, but unable to parse it: %v", err)
+			} else {
+				p.log.Printf("Found eolymp_tl tag, overriding time limit to %v ms", val)
 				timeLimit = val
 			}
 
 		case strings.HasPrefix(tag.Value, "eolymp_ml="):
-			if val, err := strconv.Atoi(tag.Value[10:]); err == nil {
+			if val, err := strconv.Atoi(tag.Value[10:]); err != nil {
+				p.log.Errorf("Found eolymp_ml tag, but unable to parse it: %v", err)
+			} else {
+				p.log.Printf("Found eolymp_ml tag, overriding memory limit to %v bytes", val)
 				memLimit = val
 			}
 		}
@@ -765,6 +814,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	for index, polytest := range polyset.Tests {
 		testset, ok := testsetByGroup[polytest.Group]
 		if !ok {
+			p.log.Errorf("Skipping test %#v because its group %#v is not mapped", index+1, polytest.Group)
 			continue
 		}
 
@@ -839,7 +889,8 @@ func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text st
 	replaced := map[string]bool{}
 	for _, image := range images {
 		if want, got := 4, len(image); want != got {
-			p.log.Warning("Captured unexpected number of groups", map[string]any{"want": want, "got": got})
+			p.log.Errorf("Unable to parse \\includegraphics parameters")
+			continue
 		}
 
 		full := image[0]
@@ -853,15 +904,17 @@ func (p *ProblemLoader) uploadImagesFromLatex(ctx context.Context, path, text st
 
 		data, err := os.ReadFile(filepath.Join(path, name))
 		if err != nil {
-			p.log.Warning("unable to read image", map[string]any{"error": err.Error()})
+			p.log.Errorf("Unable to read image %#v: %v", name, err)
 			continue
 		}
 
 		asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: name, Data: data})
 		if err != nil {
-			p.log.Warning("unable to upload image", map[string]any{"error": err.Error()})
+			p.log.Errorf("Unable to upload image %#v: %v", name, err)
 			continue
 		}
+
+		p.log.Printf("Image %#v is uploaded to %#v", name, asset.GetAssetUrl())
 
 		text = strings.Replace(text, full, prefix+asset.GetAssetUrl()+suffix, -1)
 	}
@@ -938,6 +991,8 @@ func (p *ProblemLoader) mapGroupToIndex(testset SpecificationTestset) map[string
 
 // uploadFile to eolymp's blob storage, used to upload test data
 func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, error) {
+	name := filepath.Base(path)
+
 	hash, err := p.hashFile(path)
 	if err != nil {
 		return "", err
@@ -947,6 +1002,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 
 	// check if file is already uploaded
 	if out, err := p.assets.LookupAsset(ctx, &assetpb.LookupAssetInput{Key: key}); err == nil {
+		p.log.Printf("File %v (SHA1: %v) already exists in the storage, using existing link %#v", name, hash, out.GetAssetUrl())
 		return out.GetAssetUrl(), nil
 	}
 
@@ -958,6 +1014,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 
 	defer file.Close()
 
+	start := time.Now()
 	chunk := make([]byte, objectChunkSize)
 	reader := crlf.NewReader(file)
 
@@ -1006,6 +1063,8 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 	if err != nil {
 		return "", err
 	}
+
+	p.log.Printf("File %v (SHA1: %v) is uploaded to %#v in %v", name, hash, out.GetAssetUrl(), time.Since(start))
 
 	return out.GetAssetUrl(), nil
 }

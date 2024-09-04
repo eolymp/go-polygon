@@ -1,5 +1,6 @@
 package polygon
 
 type logger interface {
-	Warning(message string, attr map[string]any)
+	Printf(format string, args ...any)
+	Errorf(format string, args ...any)
 }
