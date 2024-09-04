@@ -943,10 +943,10 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 		return "", err
 	}
 
-	alias := "sha1:" + hash
+	key := "sha1:" + hash
 
 	// check if file is already uploaded
-	if out, err := p.assets.ResolveAlias(ctx, &assetpb.ResolveAliasInput{Alias: alias}); err == nil {
+	if out, err := p.assets.LookupAsset(ctx, &assetpb.LookupAssetInput{Key: key}); err == nil {
 		return out.GetAssetUrl(), nil
 	}
 
@@ -961,7 +961,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 	chunk := make([]byte, objectChunkSize)
 	reader := crlf.NewReader(file)
 
-	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{Name: filepath.Base(path), Type: "text/plain", Aliases: []string{alias}})
+	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{Name: filepath.Base(path), Type: "text/plain", Keys: []string{key}})
 	if err != nil {
 		return "", err
 	}

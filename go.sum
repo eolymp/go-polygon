@@ -8,6 +8,8 @@ github.com/eolymp/go-sdk v0.0.0-20240902212740-d3a4b294bba9 h1:5+YVHr155p0ZxBYXj
 github.com/eolymp/go-sdk v0.0.0-20240902212740-d3a4b294bba9/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
 github.com/eolymp/go-sdk v0.0.0-20240903133930-314932e743f6 h1:S5+axCoSooiJfrrvbTPfVIorvRPNmYKxIi/ojAnNdss=
 github.com/eolymp/go-sdk v0.0.0-20240903133930-314932e743f6/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
+github.com/eolymp/go-sdk v0.0.0-20240904065035-764684bc9825 h1:G49MzqpEIQk0MC9cNHAH3y/z67X/6PyMkyTHD4w/3wY=
+github.com/eolymp/go-sdk v0.0.0-20240904065035-764684bc9825/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
@@ -36,6 +38,8 @@ google.golang.org/genproto/googleapis/rpc v0.0.0-20240708141625-4ad9e859172b h1:
 google.golang.org/genproto/googleapis/rpc v0.0.0-20240708141625-4ad9e859172b/go.mod h1:Ue6ibwXGpU+dqIcODieyLOcgj7z8+IcskoNIgZxtrFY=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed h1:J6izYgfBXAI3xTKLgxzTmUltdYaLsuBxFCgDHWJ/eXg=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed/go.mod h1:UqMtugtsSgubUsoxbuAoiCXvqvErP7Gf0so0mK9tHxU=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 h1:pPJltXNxVzT4pK9yD8vR9X75DaWYYmLGMsEvBfFQZzQ=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1/go.mod h1:UqMtugtsSgubUsoxbuAoiCXvqvErP7Gf0so0mK9tHxU=
 google.golang.org/grpc v1.65.0 h1:bs/cUb4lp1G5iImFFd3u5ixQzweKizoZJAwBNLR42lc=
 google.golang.org/grpc v1.65.0/go.mod h1:WgYC2ypjlB0EiQi6wdKixMqukr6lBc0Vo+oOgjrM5ZQ=
 google.golang.org/grpc v1.66.0 h1:DibZuoBznOxbDQxRINckZcUvnCEvrW9pcWIE2yF9r1c=

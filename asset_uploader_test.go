@@ -11,7 +11,7 @@ import (
 type assetMock struct {
 }
 
-func (assetMock) ResolveAlias(ctx context.Context, in *assetpb.ResolveAliasInput, opts ...grpc.CallOption) (*assetpb.ResolveAliasOutput, error) {
+func (assetMock) LookupAsset(ctx context.Context, in *assetpb.LookupAssetInput, opts ...grpc.CallOption) (*assetpb.LookupAssetOutput, error) {
 	return nil, status.Error(codes.NotFound, "not found")
 }
 
@@ -28,5 +28,5 @@ func (assetMock) UploadPart(ctx context.Context, in *assetpb.UploadPartInput, op
 }
 
 func (assetMock) CompleteMultipartUpload(ctx context.Context, in *assetpb.CompleteMultipartUploadInput, opts ...grpc.CallOption) (*assetpb.CompleteMultipartUploadOutput, error) {
-	return &assetpb.CompleteMultipartUploadOutput{AssetUrl: in.GetUploadId()}, nil
+	return &assetpb.CompleteMultipartUploadOutput{AssetUrl: "https://eolympusercontent.com/file/" + in.GetUploadId()}, nil
 }
