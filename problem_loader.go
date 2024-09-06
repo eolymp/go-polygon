@@ -72,7 +72,7 @@ func (p *ProblemLoader) Fetch(ctx context.Context, link string) (*atlaspb.Snapsh
 		return nil, fmt.Errorf("unable to download problem archive: %w", err)
 	}
 
-	p.log.Printf("Downloaded in %#v", time.Since(start))
+	p.log.Printf("Downloaded in %v", time.Since(start))
 
 	start = time.Now()
 
@@ -80,7 +80,7 @@ func (p *ProblemLoader) Fetch(ctx context.Context, link string) (*atlaspb.Snapsh
 		return nil, fmt.Errorf("unable to unpack problem archive: %w", err)
 	}
 
-	p.log.Printf("Unpacked in %#v", time.Since(start))
+	p.log.Printf("Unpacked in %v", time.Since(start))
 
 	return p.Snapshot(ctx, path)
 }
@@ -99,7 +99,7 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		return nil, fmt.Errorf("unable to decode problem.xml: %w", err)
 	}
 
-	p.log.Printf("package.xml succesfully parsed")
+	p.log.Printf("File package.xml succesfully parsed")
 
 	// import...
 	checker, err := p.checker(ctx, path, spec)
