@@ -372,32 +372,32 @@ func (p *ProblemLoader) cleanup(path string) {
 	}
 }
 
-func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specification) (*executorpb.Checker, error) {
+func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specification) (*atlaspb.Checker, error) {
 	switch spec.Checker.Name {
 	case "std::ncmp.cpp": // Single or more int64, ignores whitespaces
 		p.log.Printf("Adding checker std::ncmp.cpp as tokens with precision=0 and case-sensitive=true")
-		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: true}, nil
+		return &atlaspb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: true}, nil
 	case "std::rcmp4.cpp": // Single or more double, max any error 1E-4
 		p.log.Printf("Adding checker std::rcmp4.cpp as tokens with precision=4 and case-sensitive=true")
-		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 4, CaseSensitive: true}, nil
+		return &atlaspb.Checker{Type: executorpb.Checker_TOKENS, Precision: 4, CaseSensitive: true}, nil
 	case "std::rcmp6.cpp": // Single or more double, max any error 1E-6
 		p.log.Printf("Adding checker std::rcmp6.cpp as tokens with precision=6 and case-sensitive=true")
-		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 6, CaseSensitive: true}, nil
+		return &atlaspb.Checker{Type: executorpb.Checker_TOKENS, Precision: 6, CaseSensitive: true}, nil
 	case "std::rcmp9.cpp": // Single or more double, max any error 1E-9
 		p.log.Printf("Adding checker std::rcmp9.cpp as tokens with precision=9 and case-sensitive=true")
-		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 9, CaseSensitive: true}, nil
+		return &atlaspb.Checker{Type: executorpb.Checker_TOKENS, Precision: 9, CaseSensitive: true}, nil
 	case "std::wcmp.cpp": // Sequence of tokens
 		p.log.Printf("Adding checker std::wcmp.cpp as tokens with precision=0 and case-sensitive=false")
-		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: true}, nil
+		return &atlaspb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: true}, nil
 	case "std::nyesno.cpp", // Zero or more yes/no, case-insensitive
 		"std::yesno.cpp": // Single yes or no, case-insensitive
 		p.log.Printf("Adding checker std::yesno.cpp as tokens with precision=0 and case-sensitive=false")
-		return &executorpb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: false}, nil
+		return &atlaspb.Checker{Type: executorpb.Checker_TOKENS, Precision: 0, CaseSensitive: false}, nil
 	case "std::fcmp.cpp", // Lines, doesn't ignore whitespaces
 		"std::hcmp.cpp", // Single huge integer
 		"std::lcmp.cpp": // Lines, ignores whitespaces
 		p.log.Printf("Adding checker std::lcmp.cpp as lines")
-		return &executorpb.Checker{Type: executorpb.Checker_LINES}, nil
+		return &atlaspb.Checker{Type: executorpb.Checker_LINES}, nil
 	default:
 		for lang, types := range runtimeMapping {
 			source, ok := SourceByType(spec.Checker.Sources, types...)
@@ -412,14 +412,14 @@ func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specific
 
 			p.log.Printf("Adding program checker in %v", lang)
 
-			return &executorpb.Checker{Type: executorpb.Checker_PROGRAM, Lang: lang, Source: string(data)}, nil
+			return &atlaspb.Checker{Type: executorpb.Checker_PROGRAM, Runtime: lang, Source: string(data)}, nil
 		}
 	}
 
 	return nil, fmt.Errorf("checker \"%s\" not supported", spec.Checker.Name)
 }
 
-func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Specification) (*executorpb.Interactor, error) {
+func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Specification) (*atlaspb.Interactor, error) {
 	if len(spec.Interactor.Sources) == 0 {
 		return nil, nil
 	}
@@ -437,7 +437,7 @@ func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Speci
 
 		p.log.Printf("Adding interactor in %v", lang)
 
-		return &executorpb.Interactor{Type: executorpb.Interactor_PROGRAM, Lang: lang, Source: string(data)}, nil
+		return &atlaspb.Interactor{Type: executorpb.Interactor_PROGRAM, Runtime: lang, Source: string(data)}, nil
 	}
 
 	return nil, errors.New("interactor is not supported")
