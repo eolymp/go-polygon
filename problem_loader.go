@@ -201,14 +201,10 @@ func (p *ProblemLoader) downloadByLink(ctx context.Context, path string, link *u
 
 	link.User = nil
 
-	var pkgType []string
-	if !link.Query().Has("type") {
-		pkgType = []string{"windows"}
-	} else if v := link.Query().Get("type"); v != "" {
-		pkgType = []string{v}
+	query := url.Values{"login": {username}, "password": {password}}
+	if link.Query().Has("type") {
+		query.Set("type", link.Query().Get("type"))
 	}
-
-	query := url.Values{"login": {username}, "password": {password}, "type": pkgType}
 
 	req, err := http.NewRequest(http.MethodPost, link.String(), strings.NewReader(query.Encode()))
 	if err != nil {
