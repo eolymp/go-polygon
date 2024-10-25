@@ -18,7 +18,7 @@ var runtimeMapping = map[string][]string{
 	"python:3-python": {"python.2", "python.3"},
 	"python:3-pypy":   {"python.pypy2", "python.pypy3", "python.pypy3-64"},
 	"ruby:2.4":        {"ruby", "ruby.2"},
-	"rust:1.46":       {"rust"},
+	"rust:1.78":       {"rust"},
 }
 
 func SourceTypeToRuntime(t string) (string, bool) {
