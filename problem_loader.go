@@ -816,7 +816,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 
 		test := &atlaspb.Test{
 			TestsetId: testset.GetId(),
-			Index:     int32(index),
+			Index:     int32(index+1),
 			Example:   polytest.Sample,
 			Score:     polytest.Points,
 		}
