@@ -650,10 +650,10 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 // todo: add grader to the templates
 func (p *ProblemLoader) templates(ctx context.Context, path string, spec *Specification) (templates []*atlaspb.Template, err error) {
 	languages := map[string][]string{
-		"files/template_cpp.cpp":   {"gpp", "cpp:17-gnu10", "cpp:20-gnu10"},
-		"files/template_java.java": {"java"},
-		"files/template_pas.pas":   {"fpc"},
-		"files/template_py.py":     {"pypy", "python"},
+		"files/template_cpp.cpp":   {"cpp:11-gnu10", "cpp:17-gnu10", "cpp:17-gnu10-extra", "cpp:20-gnu10", "cpp:20-gnu10-extra", "cpp:20-gnu14", "cpp:20-gnu14-extra", "cpp:23-gnu10", "cpp:23-gnu10-extra", "cpp:23-gnu14", "cpp:23-gnu14-extra"},
+		"files/template_java.java": {"java:1.21", "java:1.17", "java:1.8"},
+		"files/template_pas.pas":   {"pascal:3.2"},
+		"files/template_py.py":     {"python:3-pypy", "python:3-python"},
 	}
 
 	for _, file := range spec.Templates {
@@ -816,7 +816,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 
 		test := &atlaspb.Test{
 			TestsetId: testset.GetId(),
-			Index:     int32(index+1),
+			Index:     int32(index + 1),
 			Example:   polytest.Sample,
 			Score:     polytest.Points,
 		}
