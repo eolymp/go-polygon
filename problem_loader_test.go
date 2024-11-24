@@ -424,4 +424,40 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("import templates", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/13-templates")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		want := &atlaspb.Snapshot{
+			Templates: []*atlaspb.Template{
+				{Runtime: "cpp:11-gnu10", Source: "cpp template..."},
+				{Runtime: "cpp:17-gnu10", Source: "cpp template..."},
+				{Runtime: "cpp:17-gnu10-extra", Source: "cpp template..."},
+				{Runtime: "cpp:20-gnu10", Source: "cpp template..."},
+				{Runtime: "cpp:20-gnu10-extra", Source: "cpp template..."},
+				{Runtime: "cpp:20-gnu14", Source: "cpp template..."},
+				{Runtime: "cpp:20-gnu14-extra", Source: "cpp template..."},
+				{Runtime: "cpp:23-gnu10", Source: "cpp template..."},
+				{Runtime: "cpp:23-gnu10-extra", Source: "cpp template..."},
+				{Runtime: "cpp:23-gnu14", Source: "cpp template..."},
+				{Runtime: "cpp:23-gnu14-extra", Source: "cpp template..."},
+				{Runtime: "python:3-pypy", Source: "py template...."},
+				{Runtime: "python:3-python", Source: "py template...."},
+			},
+		}
+
+		// verify scripts
+		if len(got.GetTemplates()) != len(want.GetTemplates()) {
+			t.Fatalf("Number of templates does not match: want %v, got %v", len(want.GetTemplates()), len(got.GetTemplates()))
+		}
+
+		for i := range want.GetTemplates() {
+			if !reflect.DeepEqual(want.GetTemplates()[i], got.GetTemplates()[i]) {
+				t.Errorf("Problem scripts[%v] do not match:\n want %v\n  got %v", i, want.GetTemplates()[i], got.GetTemplates()[i])
+			}
+		}
+	})
 }

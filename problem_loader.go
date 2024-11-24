@@ -600,7 +600,7 @@ func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specif
 }
 
 func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specification) (scripts []*atlaspb.Script, err error) {
-	for _, script := range spec.Templates {
+	for _, script := range spec.Executables {
 		runtime, ok := SourceTypeToRuntime(script.Source.Type)
 		if !ok {
 			p.log.Errorf("Skipping script %#v because runtime %#v is not mapped", script.Source.Path, script.Source.Type)
@@ -656,8 +656,8 @@ func (p *ProblemLoader) templates(ctx context.Context, path string, spec *Specif
 		"files/template_py.py":     {"python:3-pypy", "python:3-python"},
 	}
 
-	for _, file := range spec.Templates {
-		name := file.Source.Path
+	for _, file := range spec.Resources {
+		name := file.Path
 
 		list, ok := languages[name]
 		if !ok {

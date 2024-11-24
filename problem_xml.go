@@ -1,17 +1,17 @@
 package polygon
 
 type Specification struct {
-	Names      []SpecificationName      `xml:"names>name"`
-	Statements []SpecificationStatement `xml:"statements>statement"`
-	Tutorials  []SpecificationTutorial  `xml:"tutorials>tutorial"`
-	Templates  []SpecificationTemplate  `xml:"files>executables>executable"`
-	Graders    []SpecificationGrader    `xml:"files>resources>file"`
-	Materials  []SpecificationMaterial  `xml:"materials>material"`
-	Judging    SpecificationJudging     `xml:"judging"`
-	Checker    SpecificationChecker     `xml:"assets>checker"`
-	Interactor SpecificationInteractor  `xml:"assets>interactor"`
-	Solutions  []SpecificationSolution  `xml:"assets>solutions>solution"`
-	Tags       []SpecificationTag       `xml:"tags>tag"`
+	Names       []SpecificationName       `xml:"names>name"`
+	Statements  []SpecificationStatement  `xml:"statements>statement"`
+	Tutorials   []SpecificationTutorial   `xml:"tutorials>tutorial"`
+	Executables []SpecificationExecutable `xml:"files>executables>executable"`
+	Resources   []SpecificationResource   `xml:"files>resources>file"`
+	Materials   []SpecificationMaterial   `xml:"materials>material"`
+	Judging     SpecificationJudging      `xml:"judging"`
+	Checker     SpecificationChecker      `xml:"assets>checker"`
+	Interactor  SpecificationInteractor   `xml:"assets>interactor"`
+	Solutions   []SpecificationSolution   `xml:"assets>solutions>solution"`
+	Tags        []SpecificationTag        `xml:"tags>tag"`
 }
 
 type SpecificationName struct {
@@ -35,12 +35,12 @@ type SpecificationTutorial struct {
 	Type     string `xml:"type,attr"`
 }
 
-type SpecificationTemplate struct {
+type SpecificationExecutable struct {
 	Source SpecificationSource `xml:"source"`
 	Binary SpecificationBinary `xml:"binary"`
 }
 
-type SpecificationGrader struct {
+type SpecificationResource struct {
 	Path   string                     `xml:"path,attr"`
 	Type   string                     `xml:"type,attr"`
 	Assets []SpecificationGraderAsset `xml:"assets>asset"`
