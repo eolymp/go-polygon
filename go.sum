@@ -1,9 +1,9 @@
 github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f h1:NNJE6p4LchkmNfNskDUaSbrwxZzr7t2/lj2aS+q4oF0=
 github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f/go.mod h1:k8feO4+kXDxro6ErPXBRTJ/ro2mf0SsFG8s7doP9kJE=
-github.com/eolymp/go-sdk v0.0.0-20240912110830-68755eb04a0a h1:2VhBl8GQXD/DQNlAOLXX0sQtF8LXzYWH3uSm+JRvD80=
-github.com/eolymp/go-sdk v0.0.0-20240912110830-68755eb04a0a/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
-github.com/eolymp/go-sdk v0.0.0-20240912111427-bb3e4a2128c4 h1:sIbfO8b5dLw71l8bmgSkkZdgtMU4k6qnryt2cevW0vY=
-github.com/eolymp/go-sdk v0.0.0-20240912111427-bb3e4a2128c4/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
+github.com/eolymp/go-sdk v0.0.0-20241125145658-e611a43e567a h1:nYp5eit2F3E6Bc+o07q7pnX6GvHPWt74CduwGS/TAl8=
+github.com/eolymp/go-sdk v0.0.0-20241125145658-e611a43e567a/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
+github.com/eolymp/go-sdk v0.0.0-20241126104750-e679000cab66 h1:VyBbbH9SizWag9HZDIQy4+KlEZD9GKui4oD/UGFY8Xc=
+github.com/eolymp/go-sdk v0.0.0-20241126104750-e679000cab66/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
