@@ -8,13 +8,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/andybalholm/crlf"
-	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
-	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
-	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
-	executorpb "github.com/eolymp/go-sdk/eolymp/executor"
-	"github.com/google/uuid"
-	"golang.org/x/sync/errgroup"
 	"io"
 	"math"
 	"mime"
@@ -27,6 +20,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/andybalholm/crlf"
+	assetpb "github.com/eolymp/go-sdk/eolymp/asset"
+	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
+	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
+	executorpb "github.com/eolymp/go-sdk/eolymp/executor"
+	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 )
 
 const objectChunkSize = 5242880
@@ -1005,7 +1006,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 	// upload file
 	file, err := os.Open(path)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("unable to open file: %w", err)
 	}
 
 	defer file.Close()
@@ -1016,7 +1017,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 
 	upload, err := p.assets.StartMultipartUpload(ctx, &assetpb.StartMultipartUploadInput{Name: filepath.Base(path), Type: "text/plain", Keys: []string{key}})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("unable to start multipart upload: %w", err)
 	}
 
 	var parts []*assetpb.CompleteMultipartUploadInput_Part
@@ -1027,8 +1028,8 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 			break
 		}
 
-		if err != nil && err != io.ErrUnexpectedEOF {
-			return "", err
+		if err != nil && !errors.Is(err, io.ErrUnexpectedEOF) {
+			return "", fmt.Errorf("unable to read file chunk: %w", err)
 		}
 
 		part, err := p.assets.UploadPart(ctx, &assetpb.UploadPartInput{
@@ -1038,7 +1039,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 		})
 
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("unable to upload file chunk: %w", err)
 		}
 
 		parts = append(parts, &assetpb.CompleteMultipartUploadInput_Part{
@@ -1057,7 +1058,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 	})
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("unable to complete multipart upload: %w", err)
 	}
 
 	p.log.Printf("File %v (SHA1: %v) is uploaded to %#v in %v", name, hash, out.GetAssetUrl(), time.Since(start))

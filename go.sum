@@ -1,7 +1,7 @@
 github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f h1:NNJE6p4LchkmNfNskDUaSbrwxZzr7t2/lj2aS+q4oF0=
 github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f/go.mod h1:k8feO4+kXDxro6ErPXBRTJ/ro2mf0SsFG8s7doP9kJE=
-github.com/eolymp/go-sdk v0.0.0-20241126144032-5b0b0345b428 h1:cLGSne2LEQUb8owy7PbYVPqL0vXAVmenJQnY8/u39uA=
-github.com/eolymp/go-sdk v0.0.0-20241126144032-5b0b0345b428/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
+github.com/eolymp/go-sdk v0.0.0-20241127115125-cec20b493208 h1:B2uZHaRMwRCofxGNm3WLVBlloqYXzJPNGi8nOGT6CFY=
+github.com/eolymp/go-sdk v0.0.0-20241127115125-cec20b493208/go.mod h1:qHN2xT7v5uX9zle1mj7/43oM4LzmIUEK06lei0YcM94=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
