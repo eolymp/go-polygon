@@ -2,14 +2,20 @@ package polygon
 
 import (
 	"context"
-	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
-	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
 	"net/url"
 	"os"
-	"reflect"
 	"sort"
 	"testing"
+
+	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
+	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
+	"github.com/google/go-cmp/cmp"
+	"google.golang.org/protobuf/proto"
 )
+
+var opts = []cmp.Option{
+	cmp.Comparer(proto.Equal),
+}
 
 func TestProblemLoader_FetchViaID(t *testing.T) {
 	if os.Getenv("POLYGON_API_KEY") == "" {
@@ -79,8 +85,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		got := snap.GetProblem().GetTopics()
 		sort.Strings(got)
 
-		if !reflect.DeepEqual(want, got) {
-			t.Errorf("Problem topics do not match:\n want %v\n  got %v", want, got)
+		if !cmp.Equal(want, got, opts...) {
+			t.Errorf("Problem topics do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -98,20 +104,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			Author:  "Anton Tsypko",
 		}}
 
-		if len(got) != len(want) {
-			t.Fatalf("Number of solutions does not match: want %v, got %v", len(want), len(got))
-		}
-
-		for i := range want {
-			// erase content if it matches to simplify error output
-			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
-				want[i].Content = nil
-				got[i].Content = nil
-			}
-
-			if !reflect.DeepEqual(want[i], got[i]) {
-				t.Errorf("Problem statements[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
-			}
+		if !cmp.Equal(want, got, opts...) {
+			t.Fatalf("Problem statements do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -137,8 +131,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			got = append(got, test.GetScore())
 		}
 
-		if !reflect.DeepEqual(want, got) {
-			t.Errorf("Scores in group 2 do not match:\n want: %v\n  got: %v\n", want, got)
+		if !cmp.Equal(want, got, opts...) {
+			t.Errorf("Scores in group 2 do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -164,8 +158,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			got = append(got, test.GetScore())
 		}
 
-		if !reflect.DeepEqual(want, got) {
-			t.Errorf("Scores in group 2 do not match:\n want: %v\n  got: %v\n", want, got)
+		if !cmp.Equal(want, got, opts...) {
+			t.Errorf("Scores in group 2 do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -181,20 +175,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			{Locale: "uk", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{Ukrainian}\r\nUkrainian Editorial\r\n\\end{tutorial}\r\n"}}},
 		}
 
-		if len(got) != len(want) {
-			t.Fatal("Number of tutorials and editorials does not match")
-		}
-
-		for i := range want {
-			// erase content if it matches to simplify error output
-			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
-				want[i].Content = nil
-				got[i].Content = nil
-			}
-
-			if !reflect.DeepEqual(want[i], got[i]) {
-				t.Errorf("Problem editorials[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
-			}
+		if !cmp.Equal(want, got, opts...) {
+			t.Fatalf("Problem tutorials do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -218,20 +200,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			{Name: "failed.cpp", Runtime: "cpp:17-gnu10", Source: "failed.cpp content", Type: atlaspb.Solution_FAILURE},
 		}
 
-		if len(got) != len(want) {
-			t.Fatalf("Number of solutions does not match: want %v, got %v", len(want), len(got))
-		}
-
-		for i := range want {
-			// erase content if it matches to simplify error output
-			if want[i].GetSource() == got[i].GetSource() {
-				want[i].Source = ""
-				got[i].Source = ""
-			}
-
-			if !reflect.DeepEqual(want[i], got[i]) {
-				t.Errorf("Problem solutions[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
-			}
+		if !cmp.Equal(want, got, opts...) {
+			t.Fatalf("Problem solutions do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -245,24 +215,12 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		want := []*atlaspb.Statement{{
 			Locale:  "uk",
 			Title:   "Сума масиву",
-			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "Дано $n$ цілих чисел $a_1, a_2, \\ldots, a_n$. Знайдіть їхню суму. \\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png} \\includegraphics{https://eolympusercontent.com/file/image2.png} \n\n\\InputFile\n\nПерший рядок містить ціле число $n$ ($1 \\leq n \\leq 2 \\cdot 10^6$)~--- кількість чисел.\r\n\r\nДругий рядок містить $n$ цілих чисел $a_1, a_2, \\ldots, a_n$ ($0 \\leq a_i \\leq 10^9$)~--- числа масиву.\n\n\\OutputFile\n\nВиведіть одне число~--- суму масиву.\n\n\\Scoring\n\n\\begin{enumerate}\r\n\\item ($10$ балів): $n \\leq 1\\,000$, $a_i \\leq 1\\,000$;\r\n\\item ($10$ балів): $n \\leq 10\\,000$;\r\n\\item ($8$ балів): $n \\leq 200\\,000$;\r\n\\item ($8$ балів): $n \\leq 400\\,000$;\r\n\\item ($8$ балів): $n \\leq 600\\,000$;\r\n\\item ($8$ балів): $n \\leq 800\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,000\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,200\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,400\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,600\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,800\\,000$;\r\n\\item ($8$ балів): повні обмеження.\r\n\\end{enumerate}\r\n"}},
+			Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "Дано $n$ цілих чисел $a_1, a_2, \\ldots, a_n$. Знайдіть їхню суму. \\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png.81e324fc6a382bcd229e964c116fea55} \\includegraphics{https://eolympusercontent.com/file/image2.png.81e324fc6a382bcd229e964c116fea55} \n\n\\InputFile\n\nПерший рядок містить ціле число $n$ ($1 \\leq n \\leq 2 \\cdot 10^6$)~--- кількість чисел.\r\n\r\nДругий рядок містить $n$ цілих чисел $a_1, a_2, \\ldots, a_n$ ($0 \\leq a_i \\leq 10^9$)~--- числа масиву.\n\n\\OutputFile\n\nВиведіть одне число~--- суму масиву.\n\n\\Scoring\n\n\\begin{enumerate}\r\n\\item ($10$ балів): $n \\leq 1\\,000$, $a_i \\leq 1\\,000$;\r\n\\item ($10$ балів): $n \\leq 10\\,000$;\r\n\\item ($8$ балів): $n \\leq 200\\,000$;\r\n\\item ($8$ балів): $n \\leq 400\\,000$;\r\n\\item ($8$ балів): $n \\leq 600\\,000$;\r\n\\item ($8$ балів): $n \\leq 800\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,000\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,200\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,400\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,600\\,000$;\r\n\\item ($8$ балів): $n \\leq 1\\,800\\,000$;\r\n\\item ($8$ балів): повні обмеження.\r\n\\end{enumerate}\r\n"}},
 			Author:  "Anton Tsypko",
 		}}
 
-		if len(got) != len(want) {
-			t.Fatalf("Number of solutions does not match: want %v, got %v", len(want), len(got))
-		}
-
-		for i := range want {
-			// erase content if it matches to simplify error output
-			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
-				want[i].Content = nil
-				got[i].Content = nil
-			}
-
-			if !reflect.DeepEqual(want[i], got[i]) {
-				t.Errorf("Problem statements[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
-			}
+		if !cmp.Equal(want, got, opts...) {
+			t.Fatalf("Problem statements do not match:\n%v", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -295,24 +253,12 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		got := snap.GetEditorials()
 		want := []*atlaspb.Editorial{
-			{Locale: "en", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{English}\r\nEnglish Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png} \\includegraphics{https://eolympusercontent.com/file/image2.png}\r\n\\end{tutorial}\r\n"}}},
-			{Locale: "uk", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{Ukrainian}\r\nUkrainian Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png}\r\n\\includegraphics{https://eolympusercontent.com/file/image2.png}\r\n\\end{tutorial}\r\n"}}},
+			{Locale: "en", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{English}\r\nEnglish Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png.81e324fc6a382bcd229e964c116fea55} \\includegraphics{https://eolympusercontent.com/file/image2.png.81e324fc6a382bcd229e964c116fea55}\r\n\\end{tutorial}\r\n"}}},
+			{Locale: "uk", Content: &ecmpb.Content{Value: &ecmpb.Content_Latex{Latex: "\\begin{tutorial}{Ukrainian}\r\nUkrainian Editorial\r\n\\includegraphics[width=12cm]{https://eolympusercontent.com/file/image.png.81e324fc6a382bcd229e964c116fea55}\r\n\\includegraphics{https://eolympusercontent.com/file/image2.png.81e324fc6a382bcd229e964c116fea55}\r\n\\end{tutorial}\r\n"}}},
 		}
 
-		if len(got) != len(want) {
-			t.Fatal("Number of tutorials and editorials does not match")
-		}
-
-		for i := range want {
-			// erase content if it matches to simplify error output
-			if want[i].GetContent().GetLatex() == got[i].GetContent().GetLatex() {
-				want[i].Content = nil
-				got[i].Content = nil
-			}
-
-			if !reflect.DeepEqual(want[i], got[i]) {
-				t.Errorf("Problem editorials[%v] do not match:\n want %v\n  got %v", i, want[i], got[i])
-			}
+		if !cmp.Equal(want, got, opts...) {
+			t.Fatalf("Problem tutorials do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -325,8 +271,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		got := snap.GetTesting()
 		want := &atlaspb.TestingConfig{RunCount: 11}
 
-		if !reflect.DeepEqual(want, got) {
-			t.Errorf("Problem testing configuration do not match:\n want %v\n  got %v", want, got)
+		if !cmp.Equal(want, got, opts...) {
+			t.Errorf("Problem testing configuration do not match:\n%s", cmp.Diff(want, got, opts...))
 		}
 	})
 
@@ -358,30 +304,16 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			},
 		}
 
-		// verify scripts
-		if len(got.GetScripts()) != len(want.GetScripts()) {
-			t.Fatalf("Number of scripts does not match: want %v, got %v", len(want.GetScripts()), len(got.GetScripts()))
+		if !cmp.Equal(want.GetScripts(), got.GetScripts(), opts...) {
+			t.Fatalf("Scripts do not match:\n%s", cmp.Diff(want.GetScripts(), got.GetScripts(), opts...))
 		}
 
-		for i := range want.GetScripts() {
-			if !reflect.DeepEqual(want.GetScripts()[i], got.GetScripts()[i]) {
-				t.Errorf("Problem scripts[%v] do not match:\n want %v\n  got %v", i, want.GetScripts()[i], got.GetScripts()[i])
-			}
-		}
-
-		// verify tests
-		if len(got.GetTests()) != len(want.GetTests()) {
-			t.Fatalf("Number of tests does not match: want %v, got %v", len(want.GetTests()), len(got.GetTests()))
-		}
-
-		for i := range want.GetTests() {
-			if !reflect.DeepEqual(want.GetTests()[i], got.GetTests()[i]) {
-				t.Errorf("Problem tests[%v] do not match:\n want %v\n  got %v", i, want.GetTests()[i], got.GetTests()[i])
-			}
+		if !cmp.Equal(want.GetTests(), got.GetTests(), opts...) {
+			t.Fatalf("Tests do not match:\n%s", cmp.Diff(want.GetTests(), got.GetTests(), opts...))
 		}
 	})
 
-	// importing generated tests with pre-generated files (ie. full windows package)
+	// importing generated tests with pre-generated files (i.e. full windows package)
 	t.Run("import pre generated tests", func(t *testing.T) {
 		got, err := loader.Snapshot(ctx, ".testdata/12-tests-generator-pregenerated")
 		if err != nil {
@@ -396,32 +328,18 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 				{Name: "solution", Runtime: "cpp:17-gnu10", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
 			},
 			Tests: []*atlaspb.Test{
-				{TestsetId: tid, Index: 1, Score: 0, Example: true, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/01"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/01.a"}},
-				{TestsetId: tid, Index: 2, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/02"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/02.a"}},
-				{TestsetId: tid, Index: 3, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/03"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/03.a"}},
+				{TestsetId: tid, Index: 1, Score: 0, Example: true, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/01.68b329da9893e34099c7d8ad5cb9c940"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/01.a.68b329da9893e34099c7d8ad5cb9c940"}},
+				{TestsetId: tid, Index: 2, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/02.68b329da9893e34099c7d8ad5cb9c940"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/02.a.68b329da9893e34099c7d8ad5cb9c940"}},
+				{TestsetId: tid, Index: 3, Score: 4, Example: false, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/03.68b329da9893e34099c7d8ad5cb9c940"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/03.a.68b329da9893e34099c7d8ad5cb9c940"}},
 			},
 		}
 
-		// verify scripts
-		if len(got.GetScripts()) != len(want.GetScripts()) {
-			t.Fatalf("Number of scripts does not match: want %v, got %v", len(want.GetScripts()), len(got.GetScripts()))
+		if !cmp.Equal(want.GetScripts(), got.GetScripts(), opts...) {
+			t.Fatalf("Scripts do not match:\n%s", cmp.Diff(want.GetScripts(), got.GetScripts(), opts...))
 		}
 
-		for i := range want.GetScripts() {
-			if !reflect.DeepEqual(want.GetScripts()[i], got.GetScripts()[i]) {
-				t.Errorf("Problem scripts[%v] do not match:\n want %v\n  got %v", i, want.GetScripts()[i], got.GetScripts()[i])
-			}
-		}
-
-		// verify tests
-		if len(got.GetTests()) != len(want.GetTests()) {
-			t.Fatalf("Number of tests does not match: want %v, got %v", len(want.GetTests()), len(got.GetTests()))
-		}
-
-		for i := range want.GetTests() {
-			if !reflect.DeepEqual(want.GetTests()[i], got.GetTests()[i]) {
-				t.Errorf("Problem tests[%v] do not match:\n want %v\n  got %v", i, want.GetTests()[i], got.GetTests()[i])
-			}
+		if !cmp.Equal(want.GetTests(), got.GetTests(), opts...) {
+			t.Fatalf("Tests do not match:\n%s", cmp.Diff(want.GetTests(), got.GetTests(), opts...))
 		}
 	})
 
@@ -449,15 +367,49 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			},
 		}
 
-		// verify scripts
-		if len(got.GetTemplates()) != len(want.GetTemplates()) {
-			t.Fatalf("Number of templates does not match: want %v, got %v", len(want.GetTemplates()), len(got.GetTemplates()))
+		if !cmp.Equal(want.GetTemplates(), got.GetTemplates(), opts...) {
+			t.Fatalf("Templates do not match:\n%s", cmp.Diff(want.GetTemplates(), got.GetTemplates(), opts...))
+		}
+	})
+
+	t.Run("custom sample", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/14-custom-sample")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
 		}
 
-		for i := range want.GetTemplates() {
-			if !reflect.DeepEqual(want.GetTemplates()[i], got.GetTemplates()[i]) {
-				t.Errorf("Problem scripts[%v] do not match:\n want %v\n  got %v", i, want.GetTemplates()[i], got.GetTemplates()[i])
-			}
+		tid := got.GetTestsets()[0].GetId()
+
+		want := &atlaspb.Snapshot{
+			Tests: []*atlaspb.Test{
+				{
+					TestsetId:        tid,
+					Index:            1,
+					Example:          true,
+					Input:            &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/01.68b329da9893e34099c7d8ad5cb9c940"},
+					Answer:           &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/01.a.68b329da9893e34099c7d8ad5cb9c940"},
+					ExampleInputUrl:  "https://eolympusercontent.com/file/example.01.597082713ff313c3463a4b4690a39d05",
+					ExampleAnswerUrl: "https://eolympusercontent.com/file/example.01.a.1b9b31f77dfb44ef5b3e8b2c36807887",
+				},
+				{
+					TestsetId: tid,
+					Index:     2,
+					Score:     4,
+					Input:     &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/02.68b329da9893e34099c7d8ad5cb9c940"},
+					Answer:    &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/02.a.68b329da9893e34099c7d8ad5cb9c940"},
+				},
+				{
+					TestsetId: tid,
+					Index:     3,
+					Score:     4,
+					Input:     &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/03.68b329da9893e34099c7d8ad5cb9c940"},
+					Answer:    &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/03.a.68b329da9893e34099c7d8ad5cb9c940"},
+				},
+			},
+		}
+
+		if !cmp.Equal(want.GetTests(), got.GetTests(), opts...) {
+			t.Fatalf("Tests do not match:\n%s", cmp.Diff(want.GetTests(), got.GetTests(), opts...))
 		}
 	})
 }

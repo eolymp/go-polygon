@@ -830,13 +830,8 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		} else {
 			eg.Go(func() error {
 				link, err := p.uploadFile(ctx, input)
-				if err != nil {
-					return err
-				}
-
 				test.Input = &atlaspb.Test_InputUrl{InputUrl: link}
-
-				return nil
+				return err
 			})
 		}
 
@@ -847,14 +842,46 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 		} else {
 			eg.Go(func() error {
 				link, err := p.uploadFile(ctx, answer)
-				if err != nil {
-					return err
+				test.Answer = &atlaspb.Test_AnswerUrl{AnswerUrl: link}
+				return err
+			})
+		}
+
+		// sample input and answer
+		// look for files named example.01, example.01.a alongside statements, normally each statement has a copy, take the first one.
+		if polytest.Sample {
+			var sampleInputOk, sampleAnswerOk bool
+			for _, s := range spec.Statements {
+				if s.Type != "application/x-tex" {
+					continue
 				}
 
-				test.Answer = &atlaspb.Test_AnswerUrl{AnswerUrl: link}
+				base := filepath.Join(path, filepath.Dir(s.Path))
+				sampleInput := filepath.Join(base, fmt.Sprintf("example.%02d", index+1))
+				sampleAnswer := filepath.Join(base, fmt.Sprintf("example.%02d.a", index+1))
 
-				return nil
-			})
+				if fileExists(sampleInput) && !sampleInputOk {
+					sampleInputOk = true
+					eg.Go(func() error {
+						link, err := p.uploadFile(ctx, sampleInput)
+						test.ExampleInputUrl = link
+						return err
+					})
+				}
+
+				if fileExists(sampleAnswer) && !sampleAnswerOk {
+					sampleAnswerOk = true
+					eg.Go(func() error {
+						link, err := p.uploadFile(ctx, sampleAnswer)
+						test.ExampleAnswerUrl = link
+						return err
+					})
+				}
+
+				if sampleInputOk && sampleAnswerOk {
+					break
+				}
+			}
 		}
 
 		// add test to the list

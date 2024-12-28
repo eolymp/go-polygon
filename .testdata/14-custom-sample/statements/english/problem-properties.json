@@ -1,0 +1,25 @@
+{
+  "scoring": "",
+  "notes": "",
+  "legend": "There are $n$ points on a number line with integer coordinates $x_1, x_2, \\ldots, x_n$.",
+  "authorLogin": "michaelscott",
+  "language": "english",
+  "timeLimit": 1000,
+  "output": "",
+  "inputFile": "stdin",
+  "outputFile": "stdout",
+  "input": "",
+  "authorName": "Michael Scott",
+  "sampleTests": [
+    {
+      "output": "\r\n? 1 4 2\r\n\r\n? 1 4 3\r\n\r\n! 1 4\r\n",
+      "input": "4\r\n\r\n1\r\n\r\n1\r\n",
+      "inputFile": "example.01",
+      "outputFile": "example.01.a"
+    }
+  ],
+  "name": "Points on a Line",
+  "interaction": "",
+  "memoryLimit": 268435456,
+  "tutorial": ""
+}
