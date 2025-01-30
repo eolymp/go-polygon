@@ -726,7 +726,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 	for _, tag := range spec.Tags {
 		switch {
 		case tag.Value == "block_min" || tag.Value == "min_block":
-			p.log.Printf("Found block_min tag, switch to min scoring")
+			p.log.Printf("Found block_min tag, switch to min scoring and first point dependency mode")
 			blockMin = true
 		case strings.HasPrefix(tag.Value, "eolymp_tl="):
 			if val, err := strconv.Atoi(tag.Value[10:]); err != nil {
@@ -782,6 +782,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 
 			if blockMin && index != 0 {
 				testset.ScoringMode = atlaspb.ScoringMode_WORST
+				testset.DependencyMode = atlaspb.Testset_FIRST_POINT
 			}
 
 			testset.FeedbackPolicy = atlaspb.FeedbackPolicy_COMPLETE
