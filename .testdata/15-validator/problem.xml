@@ -3,10 +3,6 @@
     <names>
         <name language="ukrainian" value="Перша позиція"/>
     </names>
-    <statements>
-        <statement charset="UTF-8" language="english" mathjax="true" path="statements/english/problem.tex" type="application/x-tex"/>
-        <statement charset="UTF-8" language="ukrainian" mathjax="true" path="statements/ukrainian/problem.tex" type="application/x-tex"/>
-    </statements>
     <judging cpu-name="Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz" cpu-speed="3600" input-file="" output-file="" run-count="1">
         <testset name="tests">
             <time-limit>1000</time-limit>
@@ -15,20 +11,10 @@
             <input-path-pattern>tests/%02d</input-path-pattern>
             <answer-path-pattern>tests/%02d.a</answer-path-pattern>
             <tests>
-                <test cmd="gen 5 10 20" method="generated" points="0.0" sample="true"/>
-                <test cmd="gen 10 10 100" method="generated" points="4.0"/>
-                <test cmd="gen 10 100 10000" method="generated" points="4.0"/>
+                <test method="manual" points="0.0" sample="true"/>
             </tests>
         </testset>
     </judging>
-    <files>
-        <executables>
-            <executable>
-                <source path="files/gen.cpp" type="cpp.g++17"/>
-                <binary path="files/gen.exe" type="exe.win32"/>
-            </executable>
-        </executables>
-    </files>
     <assets>
         <checker name="std::ncmp.cpp" type="testlib">
             <source path="files/check.cpp" type="cpp.g++17"/>
@@ -42,6 +28,19 @@
                 <tests/>
             </testset>
         </checker>
+        <validators>
+            <validator>
+                <source path="files/val.cpp" type="cpp.gcc14-64-msys2-g++23"/>
+                <binary path="files/val.exe" type="exe.win32"/>
+                <testset>
+                    <test-count>1</test-count>
+                    <input-path-pattern>files/tests/validator-tests/%02d</input-path-pattern>
+                    <tests>
+                        <test verdict="valid"/>
+                    </tests>
+                </testset>
+            </validator>
+        </validators>
         <solutions>
             <solution tag="main">
                 <source path="solutions/main.cpp" type="cpp.g++17"/>

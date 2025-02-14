@@ -6,7 +6,7 @@ toolchain go1.23.0
 
 require (
 	github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f
-	github.com/eolymp/go-sdk v0.0.0-20250130120012-05cd9615a8c1
+	github.com/eolymp/go-sdk v0.0.0-20250214111835-b6c3331a7ef6
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	golang.org/x/sync v0.10.0

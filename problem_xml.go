@@ -10,6 +10,7 @@ type Specification struct {
 	Judging     SpecificationJudging      `xml:"judging"`
 	Checker     SpecificationChecker      `xml:"assets>checker"`
 	Interactor  SpecificationInteractor   `xml:"assets>interactor"`
+	Validator   []SpecificationValidator  `xml:"assets>validators>validator"`
 	Solutions   []SpecificationSolution   `xml:"assets>solutions>solution"`
 	Tags        []SpecificationTag        `xml:"tags>tag"`
 }
@@ -98,6 +99,13 @@ type SpecificationDependency struct {
 }
 
 type SpecificationChecker struct {
+	Name     string                `xml:"name,attr"`
+	Type     string                `xml:"type,attr"`
+	Sources  []SpecificationSource `xml:"source"`
+	Binaries []SpecificationBinary `xml:"binary"`
+}
+
+type SpecificationValidator struct {
 	Name     string                `xml:"name,attr"`
 	Type     string                `xml:"type,attr"`
 	Sources  []SpecificationSource `xml:"source"`

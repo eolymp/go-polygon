@@ -1,7 +1,7 @@
 github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f h1:NNJE6p4LchkmNfNskDUaSbrwxZzr7t2/lj2aS+q4oF0=
 github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f/go.mod h1:k8feO4+kXDxro6ErPXBRTJ/ro2mf0SsFG8s7doP9kJE=
-github.com/eolymp/go-sdk v0.0.0-20250130120012-05cd9615a8c1 h1:mH07i6FLjUp/X4RGWIy0YIBHGS99bqwWrL2L/YleC7I=
-github.com/eolymp/go-sdk v0.0.0-20250130120012-05cd9615a8c1/go.mod h1:oqgXuJrcPmY+aqAqZbbFpD2cih7hOAlK0ESkWvXX9Ns=
+github.com/eolymp/go-sdk v0.0.0-20250214111835-b6c3331a7ef6 h1:TJeSOpA7VA0gi4nyYQJVmVV5rxRpl3mv+xursl4SjSw=
+github.com/eolymp/go-sdk v0.0.0-20250214111835-b6c3331a7ef6/go.mod h1:oqgXuJrcPmY+aqAqZbbFpD2cih7hOAlK0ESkWvXX9Ns=
 github.com/go-logr/logr v1.4.2 h1:6pFjapn8bFcIbiKo3XT4j/BhANplGihG6tvd+8rYgrY=
 github.com/go-logr/logr v1.4.2/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/go-logr/stdr v1.2.2 h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=

@@ -412,4 +412,22 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			t.Fatalf("Tests do not match:\n%s", cmp.Diff(want.GetTests(), got.GetTests(), opts...))
 		}
 	})
+
+	t.Run("validator", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/15-validator")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		want := &atlaspb.Snapshot{
+			Validator: &atlaspb.Validator{
+				Runtime: "cpp:23-gnu14",
+				Source:  "int n = inf.readInt(10, 99, \"n\");",
+			},
+		}
+
+		if !cmp.Equal(want.GetValidator(), got.GetValidator(), opts...) {
+			t.Fatalf("Validator do not match:\n%s", cmp.Diff(want.GetValidator(), got.GetValidator(), opts...))
+		}
+	})
 }

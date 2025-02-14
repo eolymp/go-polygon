@@ -108,6 +108,11 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		return nil, fmt.Errorf("unable to read checker configuration: %w", err)
 	}
 
+	validator, err := p.validator(ctx, path, spec)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read validator configuration: %w", err)
+	}
+
 	interactor, err := p.interactor(ctx, path, spec)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read interactor configuration: %w", err)
@@ -157,6 +162,7 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags)},
 		Testing:     &atlaspb.TestingConfig{RunCount: runs},
 		Checker:     checker,
+		Validator:   validator,
 		Interactor:  interactor,
 		Statements:  statements,
 		Templates:   templates,
@@ -414,6 +420,28 @@ func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specific
 	}
 
 	return nil, fmt.Errorf("checker \"%s\" not supported", spec.Checker.Name)
+}
+
+func (p *ProblemLoader) validator(ctx context.Context, path string, spec *Specification) (*atlaspb.Validator, error) {
+	for _, validator := range spec.Validator {
+		for lang, types := range runtimeMapping {
+			source, ok := SourceByType(validator.Sources, types...)
+			if !ok {
+				continue
+			}
+
+			data, err := os.ReadFile(filepath.Join(path, source.Path))
+			if err != nil {
+				return nil, err
+			}
+
+			p.log.Printf("Adding program validator in %v", lang)
+
+			return &atlaspb.Validator{Runtime: lang, Source: string(data)}, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Specification) (*atlaspb.Interactor, error) {

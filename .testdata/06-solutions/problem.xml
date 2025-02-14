@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<problem revision="3" short-name="constructive-3k" url="https://polygon.codeforces.com/p0AGN0C/akharasau/constructive-3k">
+<problem revision="3" short-name="constructive-3k" url="https://polygon.codeforces.com/foo/bar/constructive-3k">
     <judging cpu-name="Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz" cpu-speed="3600" input-file="" output-file="" run-count="1">
         <testset name="tests">
             <time-limit>2000</time-limit>
