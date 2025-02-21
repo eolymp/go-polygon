@@ -9,6 +9,7 @@ import (
 
 	atlaspb "github.com/eolymp/go-sdk/eolymp/atlas"
 	ecmpb "github.com/eolymp/go-sdk/eolymp/ecm"
+	executorpb "github.com/eolymp/go-sdk/eolymp/executor"
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/protobuf/proto"
 )
@@ -428,6 +429,33 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		if !cmp.Equal(want.GetValidator(), got.GetValidator(), opts...) {
 			t.Fatalf("Validator do not match:\n%s", cmp.Diff(want.GetValidator(), got.GetValidator(), opts...))
+		}
+	})
+
+	t.Run("interactive-second-run", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/16-interactive-second-run")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		want := &atlaspb.Snapshot{
+			Testing: &atlaspb.TestingConfig{
+				RunCount:            2,
+				InteractiveFollowup: true,
+			},
+			Interactor: &atlaspb.Interactor{
+				Type:    executorpb.Interactor_PROGRAM,
+				Runtime: "cpp:23-gnu14",
+				Source:  "int n = inf.readInt(10, 99, \"n\");",
+			},
+		}
+
+		if !cmp.Equal(want.GetTesting(), got.GetTesting(), opts...) {
+			t.Fatalf("Testing configs do not match:\n%s", cmp.Diff(want.GetTesting(), got.GetTesting(), opts...))
+		}
+
+		if !cmp.Equal(want.GetInteractor(), got.GetInteractor(), opts...) {
+			t.Fatalf("Interactor do not match:\n%s", cmp.Diff(want.GetInteractor(), got.GetInteractor(), opts...))
 		}
 	})
 }

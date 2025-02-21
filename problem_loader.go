@@ -158,9 +158,11 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 		runs = 1
 	}
 
+	interactiveFollowup := len(spec.Interactor.Runs) > 1
+
 	return &atlaspb.Snapshot{
 		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags)},
-		Testing:     &atlaspb.TestingConfig{RunCount: runs},
+		Testing:     &atlaspb.TestingConfig{RunCount: runs, InteractiveFollowup: interactiveFollowup},
 		Checker:     checker,
 		Validator:   validator,
 		Interactor:  interactor,

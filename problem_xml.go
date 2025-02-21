@@ -116,6 +116,7 @@ type SpecificationInteractor struct {
 	Name     string                `xml:"name,attr"`
 	Sources  []SpecificationSource `xml:"source"`
 	Binaries []SpecificationBinary `xml:"binary"`
+	Runs     []string              `xml:"runs>run"`
 }
 
 type SpecificationBinary struct {
