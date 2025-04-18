@@ -517,27 +517,6 @@ func (p *ProblemLoader) statements(ctx context.Context, path string, spec *Speci
 			parts = append(parts, fmt.Sprintf("\\Scoring\n\n%v", props.Scoring))
 		}
 
-		if len(spec.Interactor.Sources) > 0 {
-			tests, _ := findTestFiles(filepath.Join(path, filepath.Dir(statement.Path)))
-
-			examples := "\\Examples\n\n"
-			for _, test := range tests {
-				input, err := os.ReadFile(test.input)
-				if err != nil {
-					return nil, err
-				}
-
-				output, err := os.ReadFile(test.output)
-				if err != nil {
-					return nil, err
-				}
-
-				examples += "\\exmp{" + string(input) + "}{" + string(output) + "\n}\n"
-			}
-
-			parts = append(parts, examples)
-		}
-
 		latex := strings.Join(parts, "\n\n")
 		latex = p.uploadImagesFromLatex(ctx, filepath.Join(path, filepath.Dir(statement.Path)), latex)
 
