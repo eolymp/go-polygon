@@ -363,8 +363,11 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 				{Runtime: "cpp:23-gnu10-extra", Source: "cpp template..."},
 				{Runtime: "cpp:23-gnu14", Source: "cpp template..."},
 				{Runtime: "cpp:23-gnu14-extra", Source: "cpp template..."},
-				{Runtime: "python:3-pypy", Source: "py template...."},
-				{Runtime: "python:3-python", Source: "py template...."},
+				{Runtime: "python:3.10-pypy", Source: "py template...."},
+				{Runtime: "python:3.10-pypy-extra", Source: "py template...."},
+				{Runtime: "python:3.11-ai", Source: "py template...."},
+				{Runtime: "python:3.11-python", Source: "py template...."},
+				{Runtime: "python:3.11-python-extra", Source: "py template...."},
 			},
 		}
 
@@ -458,4 +461,55 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 			t.Fatalf("Interactor do not match:\n%s", cmp.Diff(want.GetInteractor(), got.GetInteractor(), opts...))
 		}
 	})
+
+	t.Run("attachments", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/17-attachments")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		want := &atlaspb.Snapshot{
+			Attachments: []*atlaspb.Attachment{
+				{Name: "grader.cpp", Link: "https://eolympusercontent.com/file/grader.cpp.465137336127666d5691454ebe0b4423"},
+				{Name: "lib.h", Link: "https://eolympusercontent.com/file/lib.h.e280d1327353b43779085b16e17405bd"},
+			},
+		}
+
+		if !cmp.Equal(want.GetAttachments(), got.GetAttachments(), opts...) {
+			t.Fatalf("Attachments do not match:\n%s", cmp.Diff(want.GetAttachments(), got.GetAttachments(), opts...))
+		}
+	})
+
+	t.Run("import templates with files", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/18-template-with-files")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		want := &atlaspb.Snapshot{
+			Templates: []*atlaspb.Template{
+				{Runtime: "cpp:11-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:17-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:17-gnu10-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:20-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:20-gnu10-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:20-gnu14", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:20-gnu14-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:23-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:23-gnu10-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:23-gnu14", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "cpp:23-gnu14-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
+				{Runtime: "python:3.10-pypy", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.10-pypy-extra", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.11-ai", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.11-python", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.11-python-extra", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+			},
+		}
+
+		if !cmp.Equal(want.GetTemplates(), got.GetTemplates(), opts...) {
+			t.Fatalf("Templates do not match:\n%s", cmp.Diff(want.GetTemplates(), got.GetTemplates(), opts...))
+		}
+	})
+
 }

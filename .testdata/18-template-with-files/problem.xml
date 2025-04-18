@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<problem revision="2" short-name="vyrazx" url="https://polygon.codeforces.com/foo/bar/vyrazx">
+    <names>
+        <name language="ukrainian" value="Перша позиція"/>
+    </names>
+    <judging cpu-name="Intel(R) Core(TM) i3-8100 CPU @ 3.60GHz" cpu-speed="3600" input-file="" output-file="" run-count="1">
+        <testset name="tests">
+            <time-limit>1000</time-limit>
+            <memory-limit>268435456</memory-limit>
+            <test-count>26</test-count>
+            <input-path-pattern>tests/%02d</input-path-pattern>
+            <answer-path-pattern>tests/%02d.a</answer-path-pattern>
+            <tests>
+                <test cmd="gen 5 10 20" method="generated" points="0.0" sample="true"/>
+                <test cmd="gen 10 10 100" method="generated" points="4.0"/>
+                <test cmd="gen 10 100 10000" method="generated" points="4.0"/>
+            </tests>
+        </testset>
+    </judging>
+    <files>
+        <resources>
+            <file path="files/template_py.py" type="python.3"/>
+            <file path="files/xyz.h" type="h.g++" for-types="cpp.*" />
+            <file path="files/xyz.py" type="h.g++" for-types="python.*" />
+        </resources>
+    </files>
+    <assets>
+        <checker name="std::ncmp.cpp" type="testlib">
+            <source path="files/check.cpp" type="cpp.g++17"/>
+            <binary path="check.exe" type="exe.win32"/>
+            <copy path="check.cpp"/>
+            <testset>
+                <test-count>0</test-count>
+                <input-path-pattern>files/tests/checker-tests/%02d</input-path-pattern>
+                <output-path-pattern>files/tests/checker-tests/%02d.o</output-path-pattern>
+                <answer-path-pattern>files/tests/checker-tests/%02d.a</answer-path-pattern>
+                <tests/>
+            </testset>
+        </checker>
+    </assets>
+</problem>

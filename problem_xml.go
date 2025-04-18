@@ -15,6 +15,15 @@ type Specification struct {
 	Tags        []SpecificationTag        `xml:"tags>tag"`
 }
 
+func (s *Specification) Tagged(tag string) bool {
+	for _, t := range s.Tags {
+		if t.Value == tag {
+			return true
+		}
+	}
+	return false
+}
+
 type SpecificationName struct {
 	Language string `xml:"language,attr"`
 	Value    string `xml:"value,attr"`
@@ -42,9 +51,10 @@ type SpecificationExecutable struct {
 }
 
 type SpecificationResource struct {
-	Path   string                     `xml:"path,attr"`
-	Type   string                     `xml:"type,attr"`
-	Assets []SpecificationGraderAsset `xml:"assets>asset"`
+	Path     string                     `xml:"path,attr"`
+	Type     string                     `xml:"type,attr"`
+	ForTypes string                     `xml:"for-types,attr"`
+	Assets   []SpecificationGraderAsset `xml:"assets>asset"`
 }
 
 type SpecificationGraderAsset struct {

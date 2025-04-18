@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -160,8 +161,13 @@ func (p *ProblemLoader) Snapshot(ctx context.Context, path string) (*atlaspb.Sna
 
 	interactiveFollowup := len(spec.Interactor.Runs) > 1
 
+	kind := atlaspb.Problem_PROGRAM
+	if spec.Tagged("output-only") {
+		kind = atlaspb.Problem_OUTPUT
+	}
+
 	return &atlaspb.Snapshot{
-		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags)},
+		Problem:     &atlaspb.Problem{Topics: TopicsFromTags(spec.Tags), Type: kind},
 		Testing:     &atlaspb.TestingConfig{RunCount: runs, InteractiveFollowup: interactiveFollowup},
 		Checker:     checker,
 		Validator:   validator,
@@ -404,20 +410,20 @@ func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specific
 		p.log.Printf("Adding checker std::lcmp.cpp as lines")
 		return &atlaspb.Checker{Type: executorpb.Checker_LINES}, nil
 	default:
-		for lang, types := range runtimeMapping {
-			source, ok := SourceByType(spec.Checker.Sources, types...)
+		for _, checker := range spec.Checker.Sources {
+			runtime, ok := RuntimeMapping[checker.Type]
 			if !ok {
 				continue
 			}
 
-			data, err := os.ReadFile(filepath.Join(path, source.Path))
+			data, err := os.ReadFile(filepath.Join(path, checker.Path))
 			if err != nil {
 				return nil, err
 			}
 
-			p.log.Printf("Adding program checker in %v", lang)
+			p.log.Printf("Adding program checker in %v", runtime)
 
-			return &atlaspb.Checker{Type: executorpb.Checker_PROGRAM, Runtime: lang, Source: string(data)}, nil
+			return &atlaspb.Checker{Type: executorpb.Checker_PROGRAM, Runtime: runtime, Source: string(data)}, nil
 		}
 	}
 
@@ -426,8 +432,8 @@ func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specific
 
 func (p *ProblemLoader) validator(ctx context.Context, path string, spec *Specification) (*atlaspb.Validator, error) {
 	for _, validator := range spec.Validator {
-		for lang, types := range runtimeMapping {
-			source, ok := SourceByType(validator.Sources, types...)
+		for _, source := range validator.Sources {
+			runtime, ok := RuntimeMapping[source.Type]
 			if !ok {
 				continue
 			}
@@ -437,9 +443,9 @@ func (p *ProblemLoader) validator(ctx context.Context, path string, spec *Specif
 				return nil, err
 			}
 
-			p.log.Printf("Adding program validator in %v", lang)
+			p.log.Printf("Adding program validator in %v", runtime)
 
-			return &atlaspb.Validator{Runtime: lang, Source: string(data)}, nil
+			return &atlaspb.Validator{Runtime: runtime, Source: string(data)}, nil
 		}
 	}
 
@@ -451,8 +457,8 @@ func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Speci
 		return nil, nil
 	}
 
-	for lang, types := range runtimeMapping {
-		source, ok := SourceByType(spec.Interactor.Sources, types...)
+	for _, source := range spec.Interactor.Sources {
+		runtime, ok := RuntimeMapping[source.Type]
 		if !ok {
 			continue
 		}
@@ -462,9 +468,9 @@ func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Speci
 			return nil, err
 		}
 
-		p.log.Printf("Adding interactor in %v", lang)
+		p.log.Printf("Adding interactor in %v", runtime)
 
-		return &atlaspb.Interactor{Type: executorpb.Interactor_PROGRAM, Runtime: lang, Source: string(data)}, nil
+		return &atlaspb.Interactor{Type: executorpb.Interactor_PROGRAM, Runtime: runtime, Source: string(data)}, nil
 	}
 
 	return nil, errors.New("interactor is not supported")
@@ -563,7 +569,7 @@ func (p *ProblemLoader) editorials(ctx context.Context, path string, spec *Speci
 
 func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specification) (solutions []*atlaspb.Solution, err error) {
 	for _, solution := range spec.Solutions {
-		runtime, ok := SourceTypeToRuntime(solution.Source.Type)
+		runtime, ok := RuntimeMapping[solution.Source.Type]
 		if !ok {
 			p.log.Errorf("Skipping solution %#v because runtime %#v is not mapped", solution.Source.Path, solution.Source.Type)
 			continue
@@ -611,7 +617,7 @@ func (p *ProblemLoader) solutions(ctx context.Context, path string, spec *Specif
 
 func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specification) (scripts []*atlaspb.Script, err error) {
 	for _, script := range spec.Executables {
-		runtime, ok := SourceTypeToRuntime(script.Source.Type)
+		runtime, ok := RuntimeMapping[script.Source.Type]
 		if !ok {
 			p.log.Errorf("Skipping script %#v because runtime %#v is not mapped", script.Source.Path, script.Source.Type)
 			continue
@@ -635,7 +641,7 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 			continue
 		}
 
-		runtime, ok := SourceTypeToRuntime(solution.Source.Type)
+		runtime, ok := RuntimeMapping[solution.Source.Type]
 		if !ok {
 			p.log.Errorf("Unable to create solution script because runtime %#v is not mapped", solution.Source.Type)
 			continue
@@ -659,33 +665,63 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 
 // todo: add grader to the templates
 func (p *ProblemLoader) templates(ctx context.Context, path string, spec *Specification) (templates []*atlaspb.Template, err error) {
-	languages := map[string][]string{
-		"files/template_cpp.cpp":   {"cpp:11-gnu10", "cpp:17-gnu10", "cpp:17-gnu10-extra", "cpp:20-gnu10", "cpp:20-gnu10-extra", "cpp:20-gnu14", "cpp:20-gnu14-extra", "cpp:23-gnu10", "cpp:23-gnu10-extra", "cpp:23-gnu14", "cpp:23-gnu14-extra"},
-		"files/template_java.java": {"java:1.21", "java:1.17", "java:1.8"},
-		"files/template_pas.pas":   {"pascal:3.2"},
-		"files/template_py.py":     {"python:3-pypy", "python:3-python"},
-	}
-
-	for _, file := range spec.Resources {
-		name := file.Path
-
-		list, ok := languages[name]
+	for lang, runtimes := range TemplateMapping {
+		ext, ok := LanguageExtensions[lang]
 		if !ok {
 			continue
 		}
 
-		for _, lang := range list {
-			source, err := os.ReadFile(filepath.Join(path, name))
-			if err != nil {
-				return nil, err
+		filename := "template_" + lang + "." + ext
+		if lang == "python" {
+			filename = "template_py.py"
+		}
+
+		// try to load template file
+		source, err := os.ReadFile(filepath.Join(path, "files", filename))
+		if err != nil && !os.IsNotExist(err) {
+			return nil, err
+		}
+
+		// check for additional files
+		var files []*executorpb.File
+		for _, file := range spec.Resources {
+			if file.ForTypes != lang+".*" {
+				continue
 			}
 
+			name := filepath.Base(file.Path)
+
+			data, err := os.ReadFile(filepath.Join(path, file.Path))
+			if err != nil {
+				p.log.Errorf("Unable to read resource file %#v: %v", file.Path, err)
+				continue
+			}
+
+			asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: name, Data: data})
+			if err != nil {
+				p.log.Errorf("Unable to upload attachment file %#v: %v", file.Path, err)
+				continue
+			}
+
+			files = append(files, &executorpb.File{Path: name, SourceUrl: asset.GetAssetUrl()})
+		}
+
+		if len(files) == 0 && len(source) == 0 {
+			continue
+		}
+
+		for _, runtime := range runtimes {
 			templates = append(templates, &atlaspb.Template{
-				Runtime: lang,
+				Runtime: runtime,
 				Source:  string(source),
+				Files:   files,
 			})
 		}
 	}
+
+	slices.SortFunc(templates, func(a, b *atlaspb.Template) int {
+		return strings.Compare(a.Runtime, b.Runtime)
+	})
 
 	return
 }
@@ -707,6 +743,28 @@ func (p *ProblemLoader) attachments(ctx context.Context, path string, spec *Spec
 		asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: name, Data: data})
 		if err != nil {
 			p.log.Errorf("Unable to upload material %#v: %v", material.Path, err)
+			continue
+		}
+
+		attachments = append(attachments, &atlaspb.Attachment{Name: name, Link: asset.GetAssetUrl()})
+	}
+
+	for _, file := range spec.Resources {
+		if !strings.HasPrefix(filepath.Base(file.Path), "pub_") {
+			continue
+		}
+
+		data, err := os.ReadFile(filepath.Join(path, file.Path))
+		if err != nil {
+			p.log.Errorf("Unable to read attachment file %#v: %v", file.Path, err)
+			continue
+		}
+
+		name := strings.TrimPrefix(filepath.Base(file.Path), "pub_")
+
+		asset, err := p.assets.UploadAsset(ctx, &assetpb.UploadAssetInput{Name: name, Data: data})
+		if err != nil {
+			p.log.Errorf("Unable to upload attachment file %#v: %v", file.Path, err)
 			continue
 		}
 
