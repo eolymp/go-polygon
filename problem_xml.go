@@ -1,5 +1,7 @@
 package polygon
 
+import "strings"
+
 type Specification struct {
 	Names       []SpecificationName       `xml:"names>name"`
 	Statements  []SpecificationStatement  `xml:"statements>statement"`
@@ -55,6 +57,16 @@ type SpecificationResource struct {
 	Type     string                     `xml:"type,attr"`
 	ForTypes string                     `xml:"for-types,attr"`
 	Assets   []SpecificationGraderAsset `xml:"assets>asset"`
+}
+
+func (r *SpecificationResource) Asset(name string) bool {
+	for _, a := range r.Assets {
+		if strings.ToLower(a.Name) == strings.ToLower(name) {
+			return true
+		}
+	}
+
+	return false
 }
 
 type SpecificationGraderAsset struct {

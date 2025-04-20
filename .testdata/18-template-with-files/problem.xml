@@ -20,8 +20,22 @@
     <files>
         <resources>
             <file path="files/template_py.py" type="python.3"/>
-            <file path="files/xyz.h" type="h.g++" for-types="cpp.*" />
-            <file path="files/xyz.py" type="h.g++" for-types="python.*" />
+            <file path="files/xyz.h" type="h.g++" for-types="cpp.*">
+                <stages>
+                    <stage name="compile"/>
+                </stages>
+                <assets>
+                    <asset name="solution"/>
+                </assets>
+            </file>
+            <file path="files/xyz.py" type="h.g++" for-types="python.*">
+                <stages>
+                    <stage name="compile"/>
+                </stages>
+                <assets>
+                    <asset name="solution"/>
+                </assets>
+            </file>
         </resources>
     </files>
     <assets>

@@ -421,9 +421,24 @@ func (p *ProblemLoader) checker(ctx context.Context, path string, spec *Specific
 				return nil, err
 			}
 
+			var files []*executorpb.File
+			for _, file := range spec.Resources {
+				if !file.Asset("checker") {
+					continue
+				}
+
+				asset, err := p.uploadFile(ctx, filepath.Join(path, file.Path))
+				if err != nil {
+					p.log.Errorf("Unable to upload checker extra file %#v: %v", file.Path, err)
+					continue
+				}
+
+				files = append(files, &executorpb.File{Path: filepath.Base(file.Path), SourceUrl: asset})
+			}
+
 			p.log.Printf("Adding program checker in %v", runtime)
 
-			return &atlaspb.Checker{Type: executorpb.Checker_PROGRAM, Runtime: runtime, Source: string(data)}, nil
+			return &atlaspb.Checker{Type: executorpb.Checker_PROGRAM, Runtime: runtime, Source: string(data), Files: files}, nil
 		}
 	}
 
@@ -443,9 +458,24 @@ func (p *ProblemLoader) validator(ctx context.Context, path string, spec *Specif
 				return nil, err
 			}
 
+			var files []*executorpb.File
+			for _, file := range spec.Resources {
+				if !file.Asset("validator") {
+					continue
+				}
+
+				asset, err := p.uploadFile(ctx, filepath.Join(path, file.Path))
+				if err != nil {
+					p.log.Errorf("Unable to upload validator extra file %#v: %v", file.Path, err)
+					continue
+				}
+
+				files = append(files, &executorpb.File{Path: filepath.Base(file.Path), SourceUrl: asset})
+			}
+
 			p.log.Printf("Adding program validator in %v", runtime)
 
-			return &atlaspb.Validator{Runtime: runtime, Source: string(data)}, nil
+			return &atlaspb.Validator{Runtime: runtime, Source: string(data), Files: files}, nil
 		}
 	}
 
@@ -468,9 +498,24 @@ func (p *ProblemLoader) interactor(ctx context.Context, path string, spec *Speci
 			return nil, err
 		}
 
+		var files []*executorpb.File
+		for _, file := range spec.Resources {
+			if !file.Asset("interactor") {
+				continue
+			}
+
+			asset, err := p.uploadFile(ctx, filepath.Join(path, file.Path))
+			if err != nil {
+				p.log.Errorf("Unable to upload interactor extra file %#v: %v", file.Path, err)
+				continue
+			}
+
+			files = append(files, &executorpb.File{Path: filepath.Base(file.Path), SourceUrl: asset})
+		}
+
 		p.log.Printf("Adding interactor in %v", runtime)
 
-		return &atlaspb.Interactor{Type: executorpb.Interactor_PROGRAM, Runtime: runtime, Source: string(data)}, nil
+		return &atlaspb.Interactor{Type: executorpb.Interactor_PROGRAM, Files: files, Runtime: runtime, Source: string(data)}, nil
 	}
 
 	return nil, errors.New("interactor is not supported")
@@ -685,7 +730,7 @@ func (p *ProblemLoader) templates(ctx context.Context, path string, spec *Specif
 		// check for additional files
 		var files []*executorpb.File
 		for _, file := range spec.Resources {
-			if file.ForTypes != lang+".*" {
+			if file.ForTypes != lang+".*" || !file.Asset("solution") {
 				continue
 			}
 
