@@ -698,10 +698,26 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 			continue
 		}
 
+		var files []*executorpb.File
+		for _, file := range spec.Resources {
+			if !file.Asset("solution") {
+				continue
+			}
+
+			asset, err := p.uploadFile(ctx, filepath.Join(path, file.Path))
+			if err != nil {
+				p.log.Errorf("Unable to upload solution extra file %#v: %v", file.Path, err)
+				continue
+			}
+
+			files = append(files, &executorpb.File{Path: filepath.Base(file.Path), SourceUrl: asset})
+		}
+
 		scripts = append(scripts, &atlaspb.Script{
 			Name:    "solution",
 			Runtime: runtime,
 			Source:  string(data),
+			Files:   files,
 		})
 	}
 
