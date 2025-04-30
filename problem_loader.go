@@ -1195,7 +1195,7 @@ func (p *ProblemLoader) uploadFile(ctx context.Context, path string) (string, er
 		})
 
 		if err != nil {
-			return "", fmt.Errorf("unable to upload file chunk: %w", err)
+			return "", fmt.Errorf("unable to upload file chunk (upload #%s): %w", upload.GetUploadId(), err)
 		}
 
 		parts = append(parts, &assetpb.CompleteMultipartUploadInput_Part{
