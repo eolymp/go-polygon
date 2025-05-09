@@ -668,16 +668,34 @@ func (p *ProblemLoader) scripts(ctx context.Context, path string, spec *Specific
 			continue
 		}
 
+		lang := strings.Split(runtime, ":")[0]
+
 		data, err := os.ReadFile(filepath.Join(path, script.Source.Path))
 		if err != nil {
 			p.log.Errorf("Unable to read script file %#v: %v", script.Source.Path, err)
 			continue
 		}
 
+		var files []*executorpb.File
+		for _, file := range spec.Resources {
+			if filepath.Ext(file.Path) != ".h" || (lang != "cpp" && lang != "c") {
+				continue
+			}
+
+			asset, err := p.uploadFile(ctx, filepath.Join(path, file.Path))
+			if err != nil {
+				p.log.Errorf("Unable to upload solution extra file %#v: %v", file.Path, err)
+				continue
+			}
+
+			files = append(files, &executorpb.File{Path: filepath.Base(file.Path), SourceUrl: asset})
+		}
+
 		scripts = append(scripts, &atlaspb.Script{
 			Name:    strings.TrimSuffix(filepath.Base(script.Source.Path), filepath.Ext(script.Source.Path)),
 			Runtime: runtime,
 			Source:  string(data),
+			Files:   files,
 		})
 	}
 

@@ -512,4 +512,21 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		}
 	})
 
+	t.Run("import generator with files", func(t *testing.T) {
+		got, err := loader.Snapshot(ctx, ".testdata/19-generator-with-files")
+		if err != nil {
+			t.Fatal("Problem snapshot has failed:", err)
+		}
+
+		want := &atlaspb.Snapshot{
+			Scripts: []*atlaspb.Script{
+				{Name: "gen", Runtime: "cpp:17-gnu10", Source: "// generator code here", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.6274cffb0fa98376d9ce7e6ca573a1df", Path: "xyz.h"}}},
+			},
+		}
+
+		if !cmp.Equal(want.GetScripts(), got.GetScripts(), opts...) {
+			t.Fatalf("Scripts do not match:\n%s", cmp.Diff(want.GetScripts(), got.GetScripts(), opts...))
+		}
+	})
+
 }
