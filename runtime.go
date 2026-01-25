@@ -54,11 +54,11 @@ var LanguageExtensions = map[string]string{
 // polygon to eolymp runtime name mapping
 var RuntimeMapping = map[string]string{
 	"c.gcc":                      "c:17-gnu10",
-	"cpp.g++":                    "cpp:17-gnu10",
+	"cpp.g++":                    "cpp:23-gnu14",
 	"cpp.g++11":                  "cpp:17-gnu10",
 	"cpp.g++14":                  "cpp:17-gnu10",
 	"cpp.g++17":                  "cpp:17-gnu10",
-	"cpp.ms":                     "cpp:17-gnu10",
+	"cpp.ms":                     "cpp:23-gnu14",
 	"cpp.msys2-mingw64-9-g++17":  "cpp:17-gnu10",
 	"cpp.g++20":                  "cpp:20-gnu14",
 	"cpp.gcc11-64-winlibs-g++20": "cpp:20-gnu14",
@@ -91,12 +91,12 @@ var RuntimeMapping = map[string]string{
 // ie. what runtimes should template in given language be generated for
 var TemplateMapping = map[string][]string{
 	"c":       {"c:17-gnu10"},
-	"cpp":     {"cpp:11-gnu10", "cpp:17-gnu10", "cpp:17-gnu10-extra", "cpp:20-gnu10", "cpp:20-gnu10-extra", "cpp:20-gnu14", "cpp:20-gnu14-extra", "cpp:23-gnu10", "cpp:23-gnu10-extra", "cpp:23-gnu14", "cpp:23-gnu14-extra"},
+	"cpp":     {"cpp:23-gnu14", "cpp:23-gnu14-extra"},
 	"csharp":  {"csharp:5-dotnet", "csharp:5-mono"},
 	"d":       {"d:1-dmd", "d:1-gdc"},
 	"go":      {"go:1.20"},
 	"haskell": {"haskell:8.8-ghc"},
-	"java":    {"java:1.21"},
+	"java":    {"java:1.21", "java:1.25"},
 	"js":      {"js:18"},
 	"kotlin":  {"kotlin:1.9"},
 	"lua":     {"lua:5.1"},
