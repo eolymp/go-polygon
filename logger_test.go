@@ -10,9 +10,9 @@ type loggerMock struct {
 }
 
 func (l *loggerMock) Printf(format string, args ...any) {
-	l.t.Logf("logger.PRINT: " + fmt.Sprintf(format, args...))
+	l.t.Log("logger.PRINT: " + fmt.Sprintf(format, args...))
 }
 
 func (l *loggerMock) Errorf(format string, args ...any) {
-	l.t.Logf("logger.ERROR: " + fmt.Sprintf(format, args...))
+	l.t.Log("logger.ERROR: " + fmt.Sprintf(format, args...))
 }
