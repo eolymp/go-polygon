@@ -189,16 +189,16 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		got := snap.GetSolutions()
 		want := []*atlaspb.Solution{
-			{Name: "main.cpp", Runtime: "cpp:17-gnu10", Source: "main.cpp content", Type: atlaspb.Solution_CORRECT},
-			{Name: "rejected.cpp", Runtime: "cpp:17-gnu10", Source: "rejected.cpp content", Type: atlaspb.Solution_INCORRECT},
-			{Name: "accepted.cpp", Runtime: "cpp:17-gnu10", Source: "accepted.cpp content", Type: atlaspb.Solution_CORRECT},
-			{Name: "wrong-answer.cpp", Runtime: "cpp:17-gnu10", Source: "wrong-answer.cpp content", Type: atlaspb.Solution_WRONG_ANSWER},
-			{Name: "time-limit-exceeded.cpp", Runtime: "cpp:17-gnu10", Source: "time-limit-exceeded.cpp content", Type: atlaspb.Solution_TIMEOUT},
-			{Name: "time-limit-exceeded-or-accepted.cpp", Runtime: "cpp:17-gnu10", Source: "time-limit-exceeded-or-accepted.cpp content", Type: atlaspb.Solution_TIMEOUT_OR_ACCEPTED},
-			{Name: "time-limit-exceeded-or-memory-limit-exceeded.cpp", Runtime: "cpp:17-gnu10", Source: "time-limit-exceeded-or-memory-limit-exceeded.cpp content", Type: atlaspb.Solution_DONT_RUN},
-			{Name: "memory-limit-exceeded.cpp", Runtime: "cpp:17-gnu10", Source: "memory-limit-exceeded.cpp content", Type: atlaspb.Solution_OVERFLOW},
-			{Name: "presentation-error.cpp", Runtime: "cpp:17-gnu10", Source: "presentation-error.cpp content", Type: atlaspb.Solution_DONT_RUN},
-			{Name: "failed.cpp", Runtime: "cpp:17-gnu10", Source: "failed.cpp content", Type: atlaspb.Solution_FAILURE},
+			{Name: "main.cpp", Runtime: "cpp:20-gnu14", Source: "main.cpp content", Type: atlaspb.Solution_CORRECT},
+			{Name: "rejected.cpp", Runtime: "cpp:20-gnu14", Source: "rejected.cpp content", Type: atlaspb.Solution_INCORRECT},
+			{Name: "accepted.cpp", Runtime: "cpp:20-gnu14", Source: "accepted.cpp content", Type: atlaspb.Solution_CORRECT},
+			{Name: "wrong-answer.cpp", Runtime: "cpp:20-gnu14", Source: "wrong-answer.cpp content", Type: atlaspb.Solution_WRONG_ANSWER},
+			{Name: "time-limit-exceeded.cpp", Runtime: "cpp:20-gnu14", Source: "time-limit-exceeded.cpp content", Type: atlaspb.Solution_TIMEOUT},
+			{Name: "time-limit-exceeded-or-accepted.cpp", Runtime: "cpp:20-gnu14", Source: "time-limit-exceeded-or-accepted.cpp content", Type: atlaspb.Solution_TIMEOUT_OR_ACCEPTED},
+			{Name: "time-limit-exceeded-or-memory-limit-exceeded.cpp", Runtime: "cpp:20-gnu14", Source: "time-limit-exceeded-or-memory-limit-exceeded.cpp content", Type: atlaspb.Solution_DONT_RUN},
+			{Name: "memory-limit-exceeded.cpp", Runtime: "cpp:20-gnu14", Source: "memory-limit-exceeded.cpp content", Type: atlaspb.Solution_OVERFLOW},
+			{Name: "presentation-error.cpp", Runtime: "cpp:20-gnu14", Source: "presentation-error.cpp content", Type: atlaspb.Solution_DONT_RUN},
+			{Name: "failed.cpp", Runtime: "cpp:20-gnu14", Source: "failed.cpp content", Type: atlaspb.Solution_FAILURE},
 		}
 
 		if !cmp.Equal(want, got, opts...) {
@@ -288,8 +288,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		want := &atlaspb.Snapshot{
 			Scripts: []*atlaspb.Script{
-				{Name: "gen", Runtime: "cpp:17-gnu10", Source: "#include \"testlib.h\"\n#include <iostream>\nusing ll = long long;\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    cout << 12 << '\\n';\n    return 0;\n}\n"},
-				{Name: "solution", Runtime: "cpp:17-gnu10", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
+				{Name: "gen", Runtime: "cpp:20-gnu14", Source: "#include \"testlib.h\"\n#include <iostream>\nusing ll = long long;\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    cout << 12 << '\\n';\n    return 0;\n}\n"},
+				{Name: "solution", Runtime: "cpp:20-gnu14", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
 			},
 			Tests: []*atlaspb.Test{
 				{TestsetId: tid, Index: 1, Score: 0, Example: true, Input: &atlaspb.Test_InputGenerator{InputGenerator: &atlaspb.Test_Generator{ScriptName: "gen", Arguments: []string{"5", "10", "20"}}}, Answer: &atlaspb.Test_AnswerGenerator{AnswerGenerator: &atlaspb.Test_Generator{ScriptName: "solution"}}},
@@ -325,8 +325,8 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		want := &atlaspb.Snapshot{
 			Scripts: []*atlaspb.Script{
-				{Name: "gen", Runtime: "cpp:17-gnu10", Source: "#include \"testlib.h\"\n#include <iostream>\nusing ll = long long;\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    cout << 12 << '\\n';\n    return 0;\n}\n"},
-				{Name: "solution", Runtime: "cpp:17-gnu10", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
+				{Name: "gen", Runtime: "cpp:20-gnu14", Source: "#include \"testlib.h\"\n#include <iostream>\nusing ll = long long;\nusing namespace std;\n\nint main(int argc, char* argv[]) {\n    registerGen(argc, argv, 1);\n    cout << 12 << '\\n';\n    return 0;\n}\n"},
+				{Name: "solution", Runtime: "cpp:20-gnu14", Source: "#include <bits/stdc++.h>\r\nusing namespace std;\r\n\r\nint32_t main() {\r\n    ios_base::sync_with_stdio(false);\r\n    cin.tie(nullptr);\r\n    cout.tie(nullptr);\r\n\r\n    return 0;\r\n}"},
 			},
 			Tests: []*atlaspb.Test{
 				{TestsetId: tid, Index: 1, Score: 0, Example: true, Input: &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/01.68b329da9893e34099c7d8ad5cb9c940"}, Answer: &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/01.a.68b329da9893e34099c7d8ad5cb9c940"}},
@@ -352,22 +352,13 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		want := &atlaspb.Snapshot{
 			Templates: []*atlaspb.Template{
-				{Runtime: "cpp:11-gnu10", Source: "cpp template..."},
-				{Runtime: "cpp:17-gnu10", Source: "cpp template..."},
-				{Runtime: "cpp:17-gnu10-extra", Source: "cpp template..."},
-				{Runtime: "cpp:20-gnu10", Source: "cpp template..."},
-				{Runtime: "cpp:20-gnu10-extra", Source: "cpp template..."},
-				{Runtime: "cpp:20-gnu14", Source: "cpp template..."},
-				{Runtime: "cpp:20-gnu14-extra", Source: "cpp template..."},
-				{Runtime: "cpp:23-gnu10", Source: "cpp template..."},
-				{Runtime: "cpp:23-gnu10-extra", Source: "cpp template..."},
 				{Runtime: "cpp:23-gnu14", Source: "cpp template..."},
 				{Runtime: "cpp:23-gnu14-extra", Source: "cpp template..."},
-				{Runtime: "python:3.10-pypy", Source: "py template...."},
-				{Runtime: "python:3.10-pypy-extra", Source: "py template...."},
-				{Runtime: "python:3.11-ai", Source: "py template...."},
-				{Runtime: "python:3.11-python", Source: "py template...."},
-				{Runtime: "python:3.11-python-extra", Source: "py template...."},
+				{Runtime: "python:3.11-pypy", Source: "py template...."},
+				{Runtime: "python:3.11-pypy-extra", Source: "py template...."},
+				{Runtime: "python:3.13-ai", Source: "py template...."},
+				{Runtime: "python:3.13-python", Source: "py template...."},
+				{Runtime: "python:3.13-python-extra", Source: "py template...."},
 			},
 		}
 
@@ -488,22 +479,13 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		want := &atlaspb.Snapshot{
 			Templates: []*atlaspb.Template{
-				{Runtime: "cpp:11-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:17-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:17-gnu10-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:20-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:20-gnu10-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:20-gnu14", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:20-gnu14-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:23-gnu10", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "cpp:23-gnu10-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
 				{Runtime: "cpp:23-gnu14", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
 				{Runtime: "cpp:23-gnu14-extra", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.h"}}},
-				{Runtime: "python:3.10-pypy", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
-				{Runtime: "python:3.10-pypy-extra", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
-				{Runtime: "python:3.11-ai", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
-				{Runtime: "python:3.11-python", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
-				{Runtime: "python:3.11-python-extra", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.11-pypy", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.11-pypy-extra", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.13-ai", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.13-python", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
+				{Runtime: "python:3.13-python-extra", Source: "py template....", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.py.d41d8cd98f00b204e9800998ecf8427e", Path: "xyz.py"}}},
 			},
 		}
 
@@ -520,7 +502,7 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 
 		want := &atlaspb.Snapshot{
 			Scripts: []*atlaspb.Script{
-				{Name: "gen", Runtime: "cpp:17-gnu10", Source: "// generator code here", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.6274cffb0fa98376d9ce7e6ca573a1df", Path: "xyz.h"}}},
+				{Name: "gen", Runtime: "cpp:20-gnu14", Source: "// generator code here", Files: []*executorpb.File{{SourceUrl: "https://eolympusercontent.com/file/xyz.h.6274cffb0fa98376d9ce7e6ca573a1df", Path: "xyz.h"}}},
 			},
 		}
 
