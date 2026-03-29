@@ -378,13 +378,13 @@ func TestProblemLoader_Snapshot(t *testing.T) {
 		want := &atlaspb.Snapshot{
 			Tests: []*atlaspb.Test{
 				{
-					TestsetId:        tid,
-					Index:            1,
-					Example:          true,
-					Input:            &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/01.68b329da9893e34099c7d8ad5cb9c940"},
-					Answer:           &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/01.a.68b329da9893e34099c7d8ad5cb9c940"},
-					ExampleInputUrl:  "https://eolympusercontent.com/file/example.01.597082713ff313c3463a4b4690a39d05",
-					ExampleAnswerUrl: "https://eolympusercontent.com/file/example.01.a.1b9b31f77dfb44ef5b3e8b2c36807887",
+					TestsetId:     tid,
+					Index:         1,
+					Example:       true,
+					Input:         &atlaspb.Test_InputUrl{InputUrl: "https://eolympusercontent.com/file/01.68b329da9893e34099c7d8ad5cb9c940"},
+					Answer:        &atlaspb.Test_AnswerUrl{AnswerUrl: "https://eolympusercontent.com/file/01.a.68b329da9893e34099c7d8ad5cb9c940"},
+					ExampleInput:  &atlaspb.Test_ExampleInputUrl{ExampleInputUrl: "https://eolympusercontent.com/file/example.01.597082713ff313c3463a4b4690a39d05"},
+					ExampleAnswer: &atlaspb.Test_ExampleAnswerUrl{ExampleAnswerUrl: "https://eolympusercontent.com/file/example.01.a.1b9b31f77dfb44ef5b3e8b2c36807887"},
 				},
 				{
 					TestsetId: tid,

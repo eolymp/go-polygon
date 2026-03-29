@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	github.com/andybalholm/crlf v0.0.0-20171020200849-670099aa064f
-	github.com/eolymp/go-sdk v0.0.0-20260322002523-0b5a5fb70029
+	github.com/eolymp/go-sdk v0.0.0-20260329170611-604e24cbbebb
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	golang.org/x/sync v0.20.0

@@ -1011,7 +1011,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 					sampleInputOk = true
 					eg.Go(func() error {
 						link, err := p.uploadFile(ctx, sampleInput)
-						test.ExampleInputUrl = link
+						test.ExampleInput = &atlaspb.Test_ExampleInputUrl{ExampleInputUrl: link}
 						return err
 					})
 				}
@@ -1020,7 +1020,7 @@ func (p *ProblemLoader) testing(ctx context.Context, path string, spec *Specific
 					sampleAnswerOk = true
 					eg.Go(func() error {
 						link, err := p.uploadFile(ctx, sampleAnswer)
-						test.ExampleAnswerUrl = link
+						test.ExampleAnswer = &atlaspb.Test_ExampleAnswerUrl{ExampleAnswerUrl: link}
 						return err
 					})
 				}
