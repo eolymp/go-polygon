@@ -16,14 +16,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Github Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.eolymp_app_id }}
+          private-key: ${{ secrets.eolymp_app_private_key }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Set up Go Private Packages
+        run: |
+          echo "machine github.com login x-oauth-basic password ${{ steps.app-token.outputs.token }}" > $HOME/.netrc
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-
-      - name: Set up Go Private Packages
-        run: |
-          echo "machine github.com login x-oauth-basic password ${{ secrets.eolymp_bot_github_token }}" > $HOME/.netrc
 
       - name: Run tests
         run: go test -v ./...
